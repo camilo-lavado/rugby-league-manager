@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { League } from './league.entity';
+import { CreateLeagueDto } from './dto/create-league.dto';
+import { UpdateLeagueDto } from './dto/update-league.dto';
 
 @Injectable()
 export class LeaguesService {
@@ -12,26 +14,36 @@ export class LeaguesService {
     private readonly leagueRepository: Repository<League>,
   ) {}
 
-  create(data: Partial<League>): Promise<League> {
+  async create(data: CreateLeagueDto): Promise<League> {
     const league = this.leagueRepository.create(data);
-    this.logger.log(`Creating league with name: ${data.name}`);
-    return this.leagueRepository.save(league);
+    this.logger.log(`Creating league: ${JSON.stringify(data)}`);
+    return await this.leagueRepository.save(league);
   }
 
-  findAll(): Promise<League[]> {
+  async findAll(): Promise<League[]> {
     this.logger.log('Fetching all leagues');
-    return this.leagueRepository.find();
+    return await this.leagueRepository.find();
   }
 
-  delete(id: number): Promise<void> {
+  async delete(id: number): Promise<void> {
     this.logger.log(`Deleting league with id: ${id}`);
-    return this.leagueRepository.delete(id).then(() => undefined);
+    await this.leagueRepository.delete(id);
+    const league = await this.leagueRepository.findOneBy({ id });
+    if (league) {
+      this.logger.warn(`League with id ${id} was not deleted`);
+      throw new Error(`League with id ${id} was not deleted`);
+    }
+    this.logger.log(`League with id ${id} deleted successfully`);
   }
 
-  update(id: number, data: Partial<League>): Promise<League> {
-    this.logger.log(`Updating league with id: ${id}`);
-    return this.leagueRepository.update(id, data).then(() => this.findOne(id));
+  async update(id: number, dto: UpdateLeagueDto): Promise<League | null> {
+    const league = await this.findOne(id);
+    if (!league) return null;
+
+    const updated = this.leagueRepository.merge(league, dto);
+    return this.leagueRepository.save(updated);
   }
+
   async findByName(name: string): Promise<League | null> {
     const league = await this.leagueRepository.findOneBy({ name });
     if (!league) {

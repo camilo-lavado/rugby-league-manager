@@ -1,14 +1,30 @@
-import { Controller, Post, Body, Get, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete, Put, NotFoundException } from '@nestjs/common';
 import { LeaguesService } from './leagues.service';
 import { League } from './league.entity';
+import {
+  ApiTags,
+  ApiResponse,
+  ApiParam,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiInternalServerErrorResponse,
+  ApiCreatedResponse,
+} from '@nestjs/swagger';
+import { CreateLeagueDto } from './dto/create-league.dto';
+import { UpdateLeagueDto } from './dto/update-league.dto';
 
+@ApiTags('leagues')
 @Controller('leagues')
 export class LeaguesController {
   constructor(private readonly leaguesService: LeaguesService) {}
 
   @Post()
-  async create(@Body() data: Partial<League>): Promise<{ message: string; data: League }> {
-    const league = await this.leaguesService.create(data);
+  @ApiCreatedResponse({ description: 'League created successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
+  async create(
+    @Body() createLeagueDto: CreateLeagueDto,
+  ): Promise<{ message: string; data: League }> {
+    const league = await this.leaguesService.create(createLeagueDto);
     return {
       message: 'Liga creada exitosamente',
       data: league,
@@ -16,6 +32,7 @@ export class LeaguesController {
   }
 
   @Get()
+  @ApiResponse({ status: 200, description: 'List of leagues retrieved successfully' })
   async findAll(): Promise<{ message: string; data: League[] }> {
     const leagues = await this.leaguesService.findAll();
     return {
@@ -25,6 +42,9 @@ export class LeaguesController {
   }
 
   @Get(':id')
+  @ApiResponse({ status: 200, description: 'League retrieved successfully' })
+  @ApiNotFoundResponse({ description: 'League not found' })
+  @ApiParam({ name: 'id', description: 'League ID', type: Number })
   async findOne(@Param('id') id: number): Promise<{ message: string; data: League }> {
     const league = await this.leaguesService.findOne(id);
     return {
@@ -33,19 +53,23 @@ export class LeaguesController {
     };
   }
 
-  @Post(':id')
-  async update(
-    @Param('id') id: number,
-    @Body() data: Partial<League>,
-  ): Promise<{ message: string; data: League }> {
-    const league = await this.leaguesService.update(id, data);
-    return {
-      message: 'Liga actualizada exitosamente',
-      data: league,
-    };
+  @Put(':id')
+  @ApiResponse({ status: 200, description: 'League updated successfully' })
+  @ApiNotFoundResponse({ description: 'League not found' })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
+  @ApiParam({ name: 'id', description: 'League ID', type: Number })
+  async update(@Param('id') id: number, @Body() dto: UpdateLeagueDto): Promise<League> {
+    const updated = await this.leaguesService.update(id, dto);
+    if (!updated) {
+      throw new NotFoundException(`League with ID ${id} not found`);
+    }
+    return updated;
   }
 
   @Delete(':id')
+  @ApiResponse({ status: 200, description: 'League deleted successfully' })
+  @ApiNotFoundResponse({ description: 'League not found' })
+  @ApiParam({ name: 'id', description: 'League ID', type: Number })
   async delete(@Param('id') id: number): Promise<{ message: string }> {
     await this.leaguesService.delete(id);
     return {
