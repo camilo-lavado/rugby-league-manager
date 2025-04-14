@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { LeaguesModule } from './leagues/leagues.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { LeaguesModule } from './leagues/leagues.module';
       synchronize: true, // Solo para desarrollo
     }),
     LeaguesModule,
+    AuthModule,
+    UsersModule,
   ],
 })
 export class AppModule {}
