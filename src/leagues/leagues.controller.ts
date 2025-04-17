@@ -8,6 +8,7 @@ import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
   ApiCreatedResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CreateLeagueDto } from './dto/create-league.dto';
 import { UpdateLeagueDto } from './dto/update-league.dto';
@@ -22,6 +23,7 @@ export class LeaguesController {
 
   @UseGuards(JwtAuthGuard, RolesGuard) //Ejemplo de como usar los guards y los roles
   @Roles('admin')
+  @ApiBearerAuth()
   @ApiResponse({ status: 200, description: 'User authenticated successfully' })
   @ApiBadRequestResponse({ description: 'Invalid credentials' })
   @Post()
@@ -59,6 +61,11 @@ export class LeaguesController {
     };
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard) //Ejemplo de como usar los guards y los roles
+  @Roles('admin')
+  @ApiBearerAuth()
+  @ApiResponse({ status: 200, description: 'User authenticated successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid credentials' })
   @Put(':id')
   @ApiResponse({ status: 200, description: 'League updated successfully' })
   @ApiNotFoundResponse({ description: 'League not found' })
@@ -72,6 +79,11 @@ export class LeaguesController {
     return updated;
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard) //Ejemplo de como usar los guards y los roles
+  @Roles('admin')
+  @ApiBearerAuth()
+  @ApiResponse({ status: 200, description: 'User authenticated successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid credentials' })
   @Delete(':id')
   @ApiResponse({ status: 200, description: 'League deleted successfully' })
   @ApiNotFoundResponse({ description: 'League not found' })
