@@ -54,12 +54,15 @@ export class LeaguesController {
   @ApiNotFoundResponse({ description: 'League not found' })
   @ApiParam({ name: 'id', description: 'League ID', type: Number })
   async findOne(@Param('id') id: number): Promise<{ message: string; data: League }> {
-    const league = await this.leaguesService.findOne(id);
-    return {
-      message: 'Liga obtenida exitosamente',
-      data: league,
-    };
-  }
+      const league = await this.leaguesService.findById(id);
+      if (!league) {
+        throw new NotFoundException(`League with ID ${id} not found`);
+      }
+      return {
+        message: 'Liga obtenida exitosamente',
+        data: league,
+      };
+    }
 
   @UseGuards(JwtAuthGuard, RolesGuard) //Ejemplo de como usar los guards y los roles
   @Roles('admin')
