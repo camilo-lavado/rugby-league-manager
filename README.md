@@ -1,21 +1,25 @@
+```md
 # Rugby League Manager - Backend API
 
-**Rugby League Manager** es una API desarrollada en [NestJS](https://nestjs.com) que sirve como backend para una plataforma de gestión de ligas de rugby. Este proyecto es parte de un portafolio profesional y ha sido diseñado siguiendo estándares reales de desarrollo backend.
+**Rugby League Manager** es una API desarrollada en [NestJS](https://nestjs.com), diseñada como parte de un portafolio profesional para demostrar dominio en el desarrollo de backends robustos, seguros y escalables.
+
+Este backend gestiona la lógica y datos de una plataforma para administrar ligas de rugby. Aplica principios de arquitectura modular, pruebas automatizadas y estándares de producción.
 
 ---
 
 ## 🧱 Características actuales
 
-- 🔐 Autenticación con JWT
+- 🔐 Autenticación JWT segura
 - 🎭 Control de acceso por roles (`admin`, `user`)
-- 📄 CRUD completo para Ligas (`Leagues`)
-- ✅ Validaciones con `class-validator`
-- 🧠 Paginación, filtros y búsqueda por nombre/país
-- 📦 Soft delete y restauración
+- 📄 CRUD completo para `Leagues`
+- ✅ Validaciones de entrada con `class-validator`
+- 🧠 Paginación, filtros y búsqueda por nombre y país
+- 📦 Soft delete y restauración lógica
 - 👤 Auditoría (`createdBy`, `updatedBy`, `deletedBy`)
 - 📊 Documentación automática con Swagger
-- 🧩 Servicio de paginación reutilizable (`PaginationService`)
-- 🧪 Estructura modular y lista para escalar (`Teams`, `Players`, etc.)
+- ♻️ Servicio de paginación genérico (`PaginationService`)
+- 🧪 Tests unitarios en controladores y servicios con Jest
+- 🧱 Estructura modular y escalable para futuros módulos (`Teams`, `Players`, etc.)
 
 ---
 
@@ -23,24 +27,24 @@
 
 ```bash
 src/
-├── auth/              # Autenticación y estrategia JWT
-├── users/             # Usuarios con roles
-├── leagues/           # Módulo de gestión de ligas
-├── common/            # Servicios reutilizables (paginación)
-└── main.ts            # Bootstrap principal
+├── auth/              # Autenticación, JWT y guards
+├── users/             # Gestión de usuarios y roles
+├── leagues/           # Ligas de rugby (CRUD + seguridad)
+├── common/            # Servicios reutilizables (ej: paginación)
+└── main.ts            # Bootstrap principal de NestJS
 ```
 
 ---
 
 ## 🚀 Setup del proyecto
 
-### 📦 Instalación
+### 📦 Instalación de dependencias
 
 ```bash
 npm install
 ```
 
-### ▶️ Correr en desarrollo
+### ▶️ Correr en entorno de desarrollo
 
 ```bash
 npm run start:dev
@@ -50,27 +54,34 @@ npm run start:dev
 
 ## 🔐 Autenticación
 
-Se utiliza JWT en combinación con guards y roles para proteger rutas:
+La autenticación se realiza con JWT. Los endpoints protegidos requieren incluir un token con formato:
 
-- `POST /auth/register` – Crea usuarios (requiere `role`)
-- `POST /auth/login` – Devuelve el `access_token`
-- Usar `Bearer token` en Swagger o Postman
+```
+Authorization: Bearer <access_token>
+```
+
+### Endpoints disponibles
+
+- `POST /auth/register` – Registro de usuario
+- `POST /auth/login` – Login con email y password (retorna JWT)
 
 ---
 
-## 📘 Documentación Swagger
+## 📘 Swagger
 
-Accede a la documentación en tiempo real:
+La documentación generada en tiempo real se encuentra en:
 
 ```
 http://localhost:3000/api
 ```
 
+Incluye todas las rutas públicas y protegidas, con esquemas de DTOs, status y ejemplos.
+
 ---
 
-## 📚 Rutas disponibles hasta ahora
+## 📚 Endpoints actuales
 
-### `/leagues`
+### `/leagues` (Ligas de Rugby)
 
 | Método | Ruta             | Rol requerido |
 |--------|------------------|---------------|
@@ -80,32 +91,48 @@ http://localhost:3000/api
 | PUT    | `/leagues/:id`   | `admin`       |
 | DELETE | `/leagues/:id`   | `admin`       |
 
-Todas las rutas `POST`, `PUT`, `DELETE` están protegidas con `@Roles('admin')` y `@UseGuards(JwtAuthGuard, RolesGuard)`.
+> Las rutas de escritura (`POST`, `PUT`, `DELETE`) están protegidas con `@Roles('admin')` y `@UseGuards(JwtAuthGuard, RolesGuard)`.
 
 ---
 
-## 🛠️ En desarrollo
+## 🧪 Testing
 
-Actualmente se encuentra en desarrollo la siguiente etapa:
+Este proyecto incluye cobertura de pruebas:
 
-- Módulo `teams`
-- Relaciones entre ligas y equipos
-- Reutilización de paginación y control de auditoría
+- ✅ **Unit tests** de `Services` y `Controllers`
+- 🧪 Ejecutados con `Jest` y `@nestjs/testing`
+- ✅ Mocks de dependencias correctamente configurados
+- ✅ Todos los tests actuales pasan exitosamente
+
+### Comando
+
+```bash
+npm run test
+```
+
+> Tests E2E planificados para próximas fases.
 
 ---
 
-## 🧠 Autor
+## 🛠️ Roadmap en desarrollo
+
+- [ ] Módulo `teams` con relación a ligas
+- [ ] Tests E2E (`auth`, `leagues`)
+- [ ] Carga inicial de datos (seeders)
+- [ ] Roles dinámicos desde BD
+
+---
+
+## 👨‍💻 Autor
 
 **Camilo Lavado**  
 Desarrollador Fullstack · Psicólogo de formación · Autodidacta 🧩  
-[GitHub](https://github.com/camilo-lavado)
+🔗 [GitHub](https://github.com/camilo-lavado)
 
 ---
 
 ## 📄 Licencia
 
-Proyecto open-source bajo licencia [MIT](LICENSE).
+Distribuido bajo la licencia [MIT](LICENSE).
 
 ```
-
----
