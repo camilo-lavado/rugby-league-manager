@@ -1,9 +1,10 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository } from 'typeorm';
+import { IsNull, Repository, ILike, FindOptionsWhere } from 'typeorm';
 import { League } from './league.entity';
 import { CreateLeagueDto } from './dto/create-league.dto';
 import { UpdateLeagueDto } from './dto/update-league.dto';
+import { QueryLeagueDto } from './dto/query-league.dto';
 import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
@@ -23,21 +24,61 @@ export class LeaguesService {
   this.logger.log(`Creating league: ${league.name}`);
   const existingLeague = await this.leagueRepository.findOneBy({ name: league.name });
   if (existingLeague) {
-    this.logger.warn(`League with name ${league.name} already exists`);
-    throw new Error(`League with name ${league.name} already exists`);
+   throw new ConflictException(`Ya existe una liga con el nombre ${league.name}`);
   }
   this.logger.log(`League created: ${league.name}`);
   this.logger.log(`League created by: ${user?.email}`);
   return this.leagueRepository.save(league);
 }
 
-  async findAll(): Promise<League[]> {
-    this.logger.log('Fetching all leagues');
-    return await this.leagueRepository.find({
-      where: { deletedAt: IsNull() },
-      order: { name: 'ASC' },
-    });
+async findAll(query: QueryLeagueDto): Promise<{
+  data: League[];
+  total: number;
+  page: number;
+  limit: number;
+}> {
+  const { page = 1, limit = 10, search, country } = query;
+
+  const where: FindOptionsWhere<League>[] = [];
+
+  if (search) {
+    where.push({ name: ILike(`%${search}%`), deletedAt: IsNull() });
   }
+
+  if (country) {
+    if (where.length > 0) {
+      where.forEach((condition, i) => {
+        where[i] = { ...condition, country: ILike(`%${country}%`) };
+      });
+    } else {
+      where.push({ country: ILike(`%${country}%`), deletedAt: IsNull() });
+    }
+  }
+
+  if (where.length === 0) {
+    where.push({ deletedAt: IsNull() });
+  }
+
+  this.logger.log(
+    `Fetching page ${page} with limit ${limit} | search: ${search || 'none'} | country: ${country || 'any'}`
+  );
+
+  const [data, total] = await this.leagueRepository.findAndCount({
+    where,
+    take: limit,
+    skip: (page - 1) * limit,
+    order: { name: 'ASC' },
+  });
+
+  return {
+    data,
+    total,
+    page,
+    limit,
+  };
+}
+
+
 
   async delete(id: number): Promise<void> {
   const league = await this.findById(id);
@@ -79,18 +120,6 @@ export class LeaguesService {
     this.logger.log(`League found: ${league.name}`);
     return league;
   }
-
-  async findByIdWithDeleted(id: number): Promise<League | null> {
-    const league = await this.leagueRepository.findOne({ where: { id }, withDeleted: true });
-    if (!league) {
-      this.logger.warn(`League with id ${id} not found`);
-      return null;
-    }
-    this.logger.log(`League found: ${league.name}`);
-    return league;
-  }
-
-
 
   async update(id: number, dto: UpdateLeagueDto): Promise<League | null> {
     const league = await this.findById(id);

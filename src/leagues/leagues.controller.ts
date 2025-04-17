@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Delete, Put, NotFoundException, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete, Put, NotFoundException, UseGuards, Query } from '@nestjs/common';
 import { LeaguesService } from './leagues.service';
 import { League } from './league.entity';
 import {
@@ -15,6 +15,7 @@ import { UpdateLeagueDto } from './dto/update-league.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { QueryLeagueDto } from './dto/query-league.dto';
 
 @ApiTags('leagues')
 @Controller('leagues')
@@ -40,14 +41,30 @@ export class LeaguesController {
   }
 
   @Get()
-  @ApiResponse({ status: 200, description: 'List of leagues retrieved successfully' })
-  async findAll(): Promise<{ message: string; data: League[] }> {
-    const leagues = await this.leaguesService.findAll();
-    return {
-      message: 'Ligas obtenidas exitosamente',
-      data: leagues,
-    };
+@ApiResponse({ status: 200, description: 'List of leagues retrieved successfully' })
+async findAll(
+  @Query() query: QueryLeagueDto,
+): Promise<{
+  message: string;
+  data: League[];
+  meta: { total: number; page: number; limit: number };
+}> {
+  const result = await this.leaguesService.findAll(query);
+
+  if (!result.data || result.data.length === 0) {
+    throw new NotFoundException('No leagues found');
   }
+
+  return {
+    message: 'Ligas obtenidas exitosamente',
+    data: result.data,
+    meta: {
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+    },
+  };
+}
 
   @Get(':id')
   @ApiResponse({ status: 200, description: 'League retrieved successfully' })
