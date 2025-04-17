@@ -1,6 +1,6 @@
 # Rugby League Manager - Backend API
 
-**Rugby League Manager** es una API desarrollada en [NestJS](https://nestjs.com), diseñada como parte de un portafolio profesional para demostrar dominio en el desarrollo de backends robustos, seguros y escalables.
+**Rugby League Manager** es una API desarrollada en [NestJS](https://nestjs.com).
 
 Este backend gestiona la lógica y datos de una plataforma para administrar ligas de rugby. Aplica principios de arquitectura modular, pruebas automatizadas y estándares de producción.
 
@@ -19,6 +19,28 @@ Este backend gestiona la lógica y datos de una plataforma para administrar liga
 - ♻️ Servicio de paginación genérico (`PaginationService`)
 - 🧪 Tests unitarios en controladores y servicios con Jest
 - 🧱 Estructura modular y escalable para futuros módulos (`Teams`, `Players`, etc.)
+
+---
+
+## 💡 Próximas características
+
+- ✅ E2E tests con login y autorización
+- ✅ Seeder para datos iniciales
+- 🔄 Soporte para Refresh Tokens
+- 📧 Envío de correos al registrar usuario
+- 🌍 Internacionalización de mensajes
+
+---
+
+## 🧩 Diagrama Entidad-Relación (ERD)
+
+El modelo de datos ha sido diseñado para cumplir con las tres formas normales de normalización.
+
+Puedes visualizar o editar el diagrama en [dbdiagram.io](https://dbdiagram.io) utilizando el archivo:
+
+📄 [`docs/schema.dbml`](./docs/database/schema.dbml)
+
+Esto permite mantener sincronizado el diseño lógico con la implementación en código.
 
 ---
 

@@ -1,0 +1,214 @@
+// ==============================
+//        USERS, ROLES & AUTH
+// ==============================
+Table users {
+  id int [pk, increment]
+  email varchar [unique]
+  password varchar
+  created_at datetime
+}
+Table user_profiles {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  full_name varchar
+  role_id int [ref: > roles.id]
+}
+Table roles {
+  id int [pk, increment]
+  name varchar
+}
+Table permissions {
+  id int [pk, increment]
+  name varchar
+}
+Table role_permissions {
+  role_id int [ref: > roles.id]
+  permission_id int [ref: > permissions.id]
+  can_create bool
+  can_read bool
+  can_update bool
+  can_delete bool
+}
+
+// ==============================
+//         CATEGORIES
+// ==============================
+Table categories {
+  id int [pk, increment]
+  name varchar
+  type varchar
+}
+
+// ==============================
+//           STADIUMS
+// ==============================
+Table stadiums {
+  id int [pk, increment]
+  name varchar
+  location varchar
+  capacity int
+  surface_type varchar
+  status varchar
+}
+Table stadium_stats {
+  id int [pk, increment]
+  stadium_id int [ref: > stadiums.id]
+  matches_played int
+  total_attendance int
+  last_match_date datetime
+}
+
+// ==============================
+//          SEASONS
+// ==============================
+Table seasons {
+  id int [pk, increment]
+  year_start int
+  year_end int
+  league_id int [ref: > leagues.id]
+  status varchar
+}
+
+// ==============================
+//           LEAGUES
+// ==============================
+Table leagues {
+  id int [pk, increment]
+  name varchar
+  country varchar
+  category_id int [ref: > categories.id]
+  created_by int [ref: > users.id]
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+// ==============================
+//            TEAMS
+// ==============================
+Table teams {
+  id int [pk, increment]
+  name varchar
+  logo_url varchar
+  league_id int [ref: > leagues.id]
+  category_id int [ref: > categories.id]
+  created_by int [ref: > users.id]
+}
+
+// ==============================
+//           PLAYERS
+// ==============================
+Table players {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  team_id int [ref: > teams.id]
+  position_id int [ref: > positions.id]
+  jersey_number int
+}
+Table positions {
+  id int [pk, increment]
+  name varchar
+  type_id int [ref: > position_types.id]
+}
+Table position_types {
+  id int [pk, increment]
+  name varchar
+}
+
+// ==============================
+//           MATCHES
+// ==============================
+Table matches {
+  id int [pk, increment]
+  league_id int [ref: > leagues.id]
+  stadium_id int [ref: > stadiums.id]
+  season_id int [ref: > seasons.id]
+  referee_id int [ref: > users.id]
+  match_date datetime
+  status varchar
+  phase varchar
+}
+Table match_teams {
+  match_id int [ref: > matches.id]
+  team_id int [ref: > teams.id]
+  is_home bool
+}
+Table scores {
+  id int [pk, increment]
+  match_id int [ref: > matches.id]
+  team_id int [ref: > teams.id]
+  points int
+}
+Table match_stats {
+  id int [pk, increment]
+  match_id int [ref: > matches.id]
+  team_id int [ref: > teams.id]
+  tackles int
+  meters_gained int
+  tries int
+  yellow_cards int
+  red_cards int
+  turnovers_won int
+}
+
+// ==============================
+//     PLAYER PARTICIPATION
+// ==============================
+Table match_participation {
+  id int [pk, increment]
+  match_id int [ref: > matches.id]
+  player_id int [ref: > players.id]
+  is_starting bool
+  minutes_played int
+  position_id int [ref: > positions.id]
+  was_substituted bool
+  substituted_in_minute int
+  substituted_out_minute int
+}
+Table player_caps {
+  id int [pk, increment]
+  player_id int [ref: > players.id]
+  total_caps int
+  total_minutes int
+  first_cap_date datetime
+  last_cap_date datetime
+}
+Table player_season_stats {
+  id int [pk, increment]
+  player_id int [ref: > players.id]
+  season_id int [ref: > seasons.id]
+  matches_played int
+  matches_started int
+  minutes_played int
+  tries int
+  tackles int
+  yellow_cards int
+  red_cards int
+}
+
+// ==============================
+//           STANDINGS
+// ==============================
+Table standings {
+  id int [pk, increment]
+  league_id int [ref: > leagues.id]
+  team_id int [ref: > teams.id]
+  played int
+  won int
+  drawn int
+  lost int
+  points int
+  tries int
+  received int
+}
+
+// ==============================
+//        MATCH AGGREGATES
+// ==============================
+Table match_aggregates {
+  id int [pk, increment]
+  league_id int [ref: > leagues.id]
+  category_id int [ref: > categories.id]
+  date date
+  matches_played int
+}
