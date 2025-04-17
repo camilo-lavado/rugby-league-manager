@@ -5,8 +5,8 @@ import { League } from './league.entity';
 import { CreateLeagueDto } from './dto/create-league.dto';
 import { UpdateLeagueDto } from './dto/update-league.dto';
 import { QueryLeagueDto } from './dto/query-league.dto';
-import { User } from 'src/users/entities/user.entity';
-import { PaginationService } from 'src/common/services/pagination.service';
+import { User } from '../users/entities/user.entity';
+import { PaginationService } from '../common/services/pagination.service';
 
 @Injectable()
 export class LeaguesService {
