@@ -1,4 +1,3 @@
-```md
 # Rugby League Manager - Backend API
 
 **Rugby League Manager** es una API desarrollada en [NestJS](https://nestjs.com), diseñada como parte de un portafolio profesional para demostrar dominio en el desarrollo de backends robustos, seguros y escalables.
@@ -134,5 +133,3 @@ Desarrollador Fullstack · Psicólogo de formación · Autodidacta 🧩
 ## 📄 Licencia
 
 Distribuido bajo la licencia [MIT](LICENSE).
-
-```
