@@ -6,6 +6,7 @@ import { CreateLeagueDto } from './dto/create-league.dto';
 import { UpdateLeagueDto } from './dto/update-league.dto';
 import { QueryLeagueDto } from './dto/query-league.dto';
 import { User } from 'src/users/entities/user.entity';
+import { PaginationService } from 'src/common/services/pagination.service';
 
 @Injectable()
 export class LeaguesService {
@@ -14,6 +15,7 @@ export class LeaguesService {
   constructor(
     @InjectRepository(League)
     private readonly leagueRepository: Repository<League>,
+    private readonly paginationService: PaginationService,
   ) {}
 
   async create(dto: CreateLeagueDto, user?: User): Promise<League> {
@@ -31,12 +33,7 @@ export class LeaguesService {
   return this.leagueRepository.save(league);
 }
 
-async findAll(query: QueryLeagueDto): Promise<{
-  data: League[];
-  total: number;
-  page: number;
-  limit: number;
-}> {
+async findAll(query: QueryLeagueDto) {
   const { page = 1, limit = 10, search, country } = query;
 
   const where: FindOptionsWhere<League>[] = [];
@@ -59,34 +56,28 @@ async findAll(query: QueryLeagueDto): Promise<{
     where.push({ deletedAt: IsNull() });
   }
 
-  this.logger.log(
-    `Fetching page ${page} with limit ${limit} | search: ${search || 'none'} | country: ${country || 'any'}`
-  );
-
-  const [data, total] = await this.leagueRepository.findAndCount({
-    where,
-    take: limit,
-    skip: (page - 1) * limit,
-    order: { name: 'ASC' },
-  });
-
-  return {
-    data,
-    total,
+  return this.paginationService.paginate(this.leagueRepository, {
     page,
     limit,
-  };
+    where,
+    order: { name: 'ASC' },
+  });
 }
 
 
 
-  async delete(id: number): Promise<void> {
+  async delete(id: number, user: User): Promise<void> {
   const league = await this.findById(id);
   if (!league) throw new NotFoundException(`League ${id} not found`);
-  await this.leagueRepository.softRemove(league);
+
+  league.deletedBy = user; // <- Aquí seteas el campo
+  await this.leagueRepository.save(league); // Guardas la relación
+  await this.leagueRepository.softRemove(league); // Luego lo marcas como eliminado
+
   this.logger.log(`League deleted: ${league.name}`);
-  this.logger.log(`League deleted by: ${league.deletedBy?.email}`);
-  }
+  this.logger.log(`League deleted by: ${user.email}`);
+}
+
 
   async restore(id: number): Promise<void> {
     const league = await this.leagueRepository.findOne({ where: { id }, withDeleted: true });
@@ -121,12 +112,17 @@ async findAll(query: QueryLeagueDto): Promise<{
     return league;
   }
 
-  async update(id: number, dto: UpdateLeagueDto): Promise<League | null> {
-    const league = await this.findById(id);
-    if (!league) return null;
-    const updated = this.leagueRepository.merge(league, dto);
-    return this.leagueRepository.save(updated);
-  }
+async update(id: number, dto: UpdateLeagueDto, user: User): Promise<League | null> {
+  const league = await this.findById(id);
+  if (!league) return null;
+
+  const updated = this.leagueRepository.merge(league, {
+    ...dto,
+    updatedBy: user,
+  });
+  return this.leagueRepository.save(updated);
+}
+
 
   async findByName(name: string): Promise<League | null> {
     const league = await this.leagueRepository.findOneBy({ name });
