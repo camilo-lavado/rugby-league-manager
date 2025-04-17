@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Delete, Put, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete, Put, NotFoundException, UseGuards } from '@nestjs/common';
 import { LeaguesService } from './leagues.service';
 import { League } from './league.entity';
 import {
@@ -7,17 +7,23 @@ import {
   ApiParam,
   ApiBadRequestResponse,
   ApiNotFoundResponse,
-  ApiInternalServerErrorResponse,
   ApiCreatedResponse,
 } from '@nestjs/swagger';
 import { CreateLeagueDto } from './dto/create-league.dto';
 import { UpdateLeagueDto } from './dto/update-league.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @ApiTags('leagues')
 @Controller('leagues')
 export class LeaguesController {
   constructor(private readonly leaguesService: LeaguesService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard) //Ejemplo de como usar los guards y los roles
+  @Roles('admin')
+  @ApiResponse({ status: 200, description: 'User authenticated successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid credentials' })
   @Post()
   @ApiCreatedResponse({ description: 'League created successfully' })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
