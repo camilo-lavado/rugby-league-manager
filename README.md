@@ -19,6 +19,7 @@ Este backend gestiona la lógica y datos de una plataforma para administrar liga
 - ♻️ Servicio de paginación genérico (`PaginationService`)
 - 🧪 Tests unitarios en controladores y servicios con Jest
 - 🧱 Estructura modular y escalable para futuros módulos (`Teams`, `Players`, etc.)
+- 🧱 Implementación de [Throttle](https://docs.nestjs.com/security/rate-limiting) para protección contra ataques de fuerza bruta.
 
 ---
 
@@ -53,7 +54,7 @@ src/
 ├── leagues/           # Ligas de rugby (CRUD + seguridad)
 ├── common/            # Servicios reutilizables (ej: paginación)
 └── main.ts            # Bootstrap principal de NestJS
-```
+```bash
 
 ---
 
@@ -63,7 +64,7 @@ src/
 
 ```bash
 npm install
-```
+```bash
 
 ### ▶️ Correr en entorno de desarrollo
 
@@ -77,7 +78,7 @@ npm run start:dev
 
 La autenticación se realiza con JWT. Los endpoints protegidos requieren incluir un token con formato:
 
-```
+```bash
 Authorization: Bearer <access_token>
 ```
 
@@ -92,7 +93,7 @@ Authorization: Bearer <access_token>
 
 La documentación generada en tiempo real se encuentra en:
 
-```
+```bash
 http://localhost:3000/api
 ```
 
@@ -104,15 +105,17 @@ Incluye todas las rutas públicas y protegidas, con esquemas de DTOs, status y e
 
 ### `/leagues` (Ligas de Rugby)
 
-| Método | Ruta             | Rol requerido |
-|--------|------------------|---------------|
-| GET    | `/leagues`       | Público       |
-| GET    | `/leagues/:id`   | Público       |
-| POST   | `/leagues`       | `admin`       |
-| PUT    | `/leagues/:id`   | `admin`       |
-| DELETE | `/leagues/:id`   | `admin`       |
+| Método | Ruta                 | Rol requerido |
+|--------|----------------------|---------------|
+| GET    | `/test/throttle`     | Público       |
+| GET    | `/leagues`           | Público       |
+| GET    | `/leagues/:id`       | Público       |
+| POST   | `/leagues`           | `admin`       |
+| PUT    | `/leagues/:id`       | `admin`       |
+| DELETE | `/leagues/:id`       | `admin`       |
 
 > Las rutas de escritura (`POST`, `PUT`, `DELETE`) están protegidas con `@Roles('admin')` y `@UseGuards(JwtAuthGuard, RolesGuard)`.
+> Las Rutas estan protegidas de forma global por throttle.
 
 ---
 
