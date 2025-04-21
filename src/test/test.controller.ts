@@ -1,17 +1,23 @@
 import { Controller, Get } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @Controller('test')
 export class TestController {
- @Get('throttle')
-   @Throttle({
+  @Get('throttle')
+  @Throttle({
     default: {
       limit: 5,
       ttl: 10000,
     },
   }) 
-  @Get('limited')
-  getLimitedData() {
+  getThrottleData() {
     return 'Ruta de prueba de Throttle!';
   }
+
+  @Get('limited')
+  @SkipThrottle()
+  getLimitedData() {
+    return 'Ruta de prueba sin Throttle!';
+  }
 }
+
