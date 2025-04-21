@@ -5,9 +5,19 @@ import { LeaguesModule } from './leagues/leagues.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { TestModule } from './test/test.module';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 10,
+        },
+      ],
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -23,6 +33,13 @@ import { CommonModule } from './common/common.module';
     AuthModule,
     UsersModule,
     CommonModule,
+    TestModule,
+  ],
+  providers: [
+    {
+      provide: 'APP_GUARD',
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}
