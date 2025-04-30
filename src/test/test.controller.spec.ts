@@ -59,17 +59,16 @@ describe('TestController', () => {
     });
   });
 
-  describe('GET /test/limited', () => {
+  describe('GET /test/unlimited', () => {
     it('should return a message without throttling', async () => {
-      const response = await request(app.getHttpServer()).get('/test/limited');
+      const response = await request(app.getHttpServer()).get('/test/unlimited');
       expect(response.status).toBe(200);
       expect(response.text).toBe('Ruta de prueba sin Throttle!');
     });
 
     it('should allow multiple requests without throttling', async () => {
-      // Realizar múltiples solicitudes a la ruta sin throttle
       for (let i = 0; i < 10; i++) {
-        const response = await request(app.getHttpServer()).get('/test/limited');
+        const response = await request(app.getHttpServer()).get('/test/unlimited');
         expect(response.status).toBe(200);
         expect(response.text).toBe('Ruta de prueba sin Throttle!');
       }
