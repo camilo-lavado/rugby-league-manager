@@ -1,12 +1,13 @@
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository, ILike, FindOptionsWhere } from 'typeorm';
+import { IsNull, Repository, ILike, FindOptionsWhere, Not } from 'typeorm';
 import { League } from './league.entity';
 import { CreateLeagueDto } from './dto/create-league.dto';
 import { UpdateLeagueDto } from './dto/update-league.dto';
 import { QueryLeagueDto } from './dto/query-league.dto';
 import { User } from '../users/entities/user.entity';
 import { PaginationService } from '../common/services/pagination.service';
+import { Team } from '../teams/entities/team.entity';
 
 @Injectable()
 export class LeaguesService {
@@ -15,6 +16,9 @@ export class LeaguesService {
   constructor(
     @InjectRepository(League)
     private readonly leagueRepository: Repository<League>,
+
+    @InjectRepository(Team)
+    private readonly teamRepository: Repository<Team>,
     private readonly paginationService: PaginationService,
   ) {}
 
@@ -66,17 +70,23 @@ async findAll(query: QueryLeagueDto) {
 
 
 
-  async delete(id: number, user: User): Promise<void> {
+async delete(id: number, user: User): Promise<void> {
   const league = await this.findById(id);
   if (!league) throw new NotFoundException(`League ${id} not found`);
+  await this.teamRepository.update(
+    { league: { id } },
+    { league: undefined }
+  );
 
-  league.deletedBy = user; // <- Aquí seteas el campo
-  await this.leagueRepository.save(league); // Guardas la relación
-  await this.leagueRepository.softRemove(league); // Luego lo marcas como eliminado
+  league.deletedBy = user;
+  league.deletedAt = new Date();
+  await this.leagueRepository.save(league);
+  await this.leagueRepository.softRemove(league);
 
   this.logger.log(`League deleted: ${league.name}`);
   this.logger.log(`League deleted by: ${user.email}`);
 }
+
 
 
   async restore(id: number): Promise<void> {
@@ -89,7 +99,7 @@ async findAll(query: QueryLeagueDto) {
 
   async findDeleted(): Promise<League[]> {
     this.logger.log('Fetching all deleted leagues');
-    return await this.leagueRepository.find({ withDeleted: true });
+    return await this.leagueRepository.find({ where: { deletedAt: Not(IsNull()) }, withDeleted: true });
   }
 
   async findDeletedById(id: number): Promise<League | null> {
@@ -112,16 +122,23 @@ async findAll(query: QueryLeagueDto) {
     return league;
   }
 
-async update(id: number, dto: UpdateLeagueDto, user: User): Promise<League | null> {
-  const league = await this.findById(id);
-  if (!league) return null;
-
-  const updated = this.leagueRepository.merge(league, {
-    ...dto,
-    updatedBy: user,
-  });
-  return this.leagueRepository.save(updated);
-}
+  async update(id: number, dto: UpdateLeagueDto, user: User): Promise<League | null> {
+    const league = await this.findById(id);
+    if (!league) return null;
+  
+    if (dto.name && dto.name !== league.name) {
+      const exists = await this.leagueRepository.findOne({ where: { name: dto.name } });
+      if (exists) throw new ConflictException(`Ya existe una liga con el nombre ${dto.name}`);
+    }
+  
+    const updated = this.leagueRepository.merge(league, {
+      ...dto,
+      updatedBy: user,
+    });
+  
+    return this.leagueRepository.save(updated);
+  }
+  
 
 
   async findByName(name: string): Promise<League | null> {
