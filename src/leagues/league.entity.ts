@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, DeleteDateColumn, ManyToOne, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, DeleteDateColumn, ManyToOne, UpdateDateColumn, Index } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 
 @Entity()
@@ -6,9 +6,11 @@ export class League {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index()
   @Column()
   name: string;
 
+  @Index()
   @Column()
   country: string;
 
