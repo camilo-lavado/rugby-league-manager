@@ -34,39 +34,42 @@ export class TeamsService {
 
   async findAll(query: QueryTeamDto) {
     const { page = 1, limit = 10, search, country, leagueId } = query;
+  
     const where: FindOptionsWhere<Team>[] = [];
+  
     if (search) {
       where.push({ name: ILike(`%${search}%`), deletedAt: IsNull() });
     }
+  
     if (country) {
-      if (where.length > 0) {
-        where.forEach((condition, i) => {
-          where[i] = { ...condition, country: ILike(`%${country}%`) };
-        });
-      } else {
-        where.push({ country: ILike(`%${country}%`), deletedAt: IsNull() });
-      }
+      where.push({ country: ILike(`%${country}%`), deletedAt: IsNull() });
     }
+  
     if (leagueId) {
-      if (where.length > 0) {
-        where.forEach((condition, i) => {
-          where[i] = { ...condition, leagueId: leagueId };
-        });
-      } else {
-        where.push({ leagueId: leagueId, deletedAt: IsNull() });
-      }
+      where.push({ league: { id: leagueId }, deletedAt: IsNull() });
     }
-    if (where.length === 0) {
+  
+    if (!search && !country && !leagueId) {
       where.push({ deletedAt: IsNull() });
     }
+  
+    const [items, total] = await this.teamRepository.findAndCount({
+      where,
+      take: limit,
+      skip: (page - 1) * limit,
+      relations: ['league', 'createdBy', 'updatedBy', 'deletedBy'],
+      order: { name: 'ASC' },
+    });
+  
     return this.paginationService.paginate(this.teamRepository, {
       page,
       limit,
       where,
       order: { name: 'ASC' },
+      relations: ['league', 'createdBy', 'updatedBy', 'deletedBy'],
     });
   }
-
+  
   async findById(id: number): Promise<Team> {
     const team = await this.teamRepository.findOneBy({ id });
     if (!team) {

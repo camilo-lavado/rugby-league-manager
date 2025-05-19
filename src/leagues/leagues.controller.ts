@@ -9,6 +9,7 @@ import {
   NotFoundException,
   UseGuards,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { LeaguesService } from './leagues.service';
 import { League } from './league.entity';
@@ -98,7 +99,7 @@ export class LeaguesController {
   @ApiBearerAuth()
   @ApiResponse({ status: 200, description: 'League updated successfully' })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
-  @Put(':id')
+  @Patch(':id')
   @ApiParam({ name: 'id', description: 'League ID', type: Number })
   async update(
     @Param('id') id: number,
