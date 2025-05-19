@@ -8,18 +8,24 @@ Este backend gestiona la lógica y datos de una plataforma para administrar liga
 
 ## 🧱 Características actuales
 
-- 🔐 Autenticación JWT segura
-- 🎭 Control de acceso por roles (`admin`, `user`)
-- 📄 CRUD completo para `Leagues`
-- ✅ Validaciones de entrada con `class-validator`
-- 🧠 Paginación, filtros y búsqueda por nombre y país
-- 📦 Soft delete y restauración lógica
-- 👤 Auditoría (`createdBy`, `updatedBy`, `deletedBy`)
-- 📊 Documentación automática con Swagger
-- ♻️ Servicio de paginación genérico (`PaginationService`)
-- 🧪 Tests unitarios en controladores y servicios con Jest
-- 🧱 Estructura modular y escalable para futuros módulos (`Teams`, `Players`, etc.)
-- 🧱 Implementación de [Throttle](https://docs.nestjs.com/security/rate-limiting) para protección contra ataques de fuerza bruta.
+🔐 Autenticación JWT segura
+🎭 Control de acceso por roles (admin, user)
+📄 CRUD completo para Leagues
+📄 CRUD completo para Teams
+📄 CRUD completo para Players
+✅ Validaciones de entrada con class-validator
+🧠 Paginación, filtros y búsqueda por nombre y país
+📦 Soft delete y restauración lógica
+👤 Auditoría (createdBy, updatedBy, deletedBy)
+📊 Documentación automática con Swagger
+♻️ Servicio de paginación genérico (PaginationService)
+🧪 Tests unitarios en controladores y servicios con Jest
+🧱 Estructura modular y escalable para futuros módulos (Teams, Players, etc.)
+🧱 Implementación de Throttle para protección contra ataques de fuerza bruta.
+✨ Swagger configurado para throttle.
+✨ Implementación de throttle.
+🧱 Modelo entidad-relación inicial.
+🛠️ Corrección para excluir datos sensibles en la respuesta.
 
 ---
 
@@ -52,6 +58,8 @@ src/
 ├── auth/              # Autenticación, JWT y guards
 ├── users/             # Gestión de usuarios y roles
 ├── leagues/           # Ligas de rugby (CRUD + seguridad)
+├── players/           # Jugadores de rugby (CRUD + seguridad)
+├── teams/             # Equipos de rugby (CRUD + seguridad)
 ├── common/            # Servicios reutilizables (ej: paginación)
 └── main.ts            # Bootstrap principal de NestJS
 ```bash
@@ -70,6 +78,14 @@ npm install
 
 ```bash
 npm run start:dev
+```
+
+---
+
+### ▶️ Correr pruebas entorno de desarrollo
+
+```bash
+npm run test
 ```
 
 ---
@@ -111,13 +127,41 @@ Incluye todas las rutas públicas y protegidas, con esquemas de DTOs, status y e
 | GET    | `/leagues`           | Público       |
 | GET    | `/leagues/:id`       | Público       |
 | POST   | `/leagues`           | `admin`       |
-| PUT    | `/leagues/:id`       | `admin`       |
+| PATCH    | `/leagues/:id`       | `admin`       |
 | DELETE | `/leagues/:id`       | `admin`       |
 
-> Las rutas de escritura (`POST`, `PUT`, `DELETE`) están protegidas con `@Roles('admin')` y `@UseGuards(JwtAuthGuard, RolesGuard)`.
+> Las rutas de escritura (`POST`, `PATCH`, `DELETE`) están protegidas con `@Roles('admin')` y `@UseGuards(JwtAuthGuard, RolesGuard)`.
 > Las Rutas estan protegidas de forma global por throttle.
-
 ---
+
+### `/teams` (Equipos de Rugby)
+
+| Método | Ruta                 | Rol requerido |
+|--------|----------------------|---------------|
+| GET    | `/test/throttle`     | Público       |
+| GET    | `/teams`           | Público       |
+| GET    | `/teams/:id`       | Público       |
+| POST   | `/teams`           | `admin`       |
+| PATCH    | `/teams/:id`       | `admin`       |
+| DELETE | `/teams/:id`       | `admin`       |
+
+> Las rutas de escritura (`POST`, `PATCH`, `DELETE`) están protegidas con `@Roles('admin')` y `@UseGuards(JwtAuthGuard, RolesGuard)`.
+> Las Rutas estan protegidas de forma global por throttle.
+---
+
+### `/players` (Jugadores de Rugby)
+
+| Método | Ruta                 | Rol requerido |
+|--------|----------------------|---------------|
+| GET    | `/test/throttle`     | Público       |
+| GET    | `/players`           | Público       |
+| GET    | `/players/:id`       | Público       |
+| POST   | `/players`           | `admin`       |
+| PATCH    | `/players/:id`       | `admin`       |
+| DELETE | `/players/:id`       | `admin`       |
+
+> Las rutas de escritura (`POST`, `PATCH`, `DELETE`) están protegidas con `@Roles('admin')` y `@UseGuards(JwtAuthGuard, RolesGuard)`.
+> Las Rutas estan protegidas de forma global por throttle.
 
 ## 🧪 Testing
 
@@ -140,9 +184,8 @@ npm run test
 
 ## 🛠️ Roadmap en desarrollo
 
-- [ ] Módulo `teams` con relación a ligas
-- [ ] Tests E2E (`auth`, `leagues`)
-- [ ] Carga inicial de datos (seeders)
+- [ ] Implementación de entidades para metricas de players
+- [ ] Carga inicial de datos (seeders)(players, teams)
 - [ ] Roles dinámicos desde BD
 
 ---
@@ -150,7 +193,7 @@ npm run test
 ## 👨‍💻 Autor
 
 **Camilo Lavado**  
-Desarrollador Fullstack · Psicólogo de formación · Autodidacta 🧩  
+Desarrollador Fullstack · Psicólogo · Autodidacta 🧩  
 🔗 [GitHub](https://github.com/camilo-lavado)
 
 ---

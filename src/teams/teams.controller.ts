@@ -30,7 +30,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { QueryTeamDto } from './dto/query-team.dto';
 import { User } from '../users/entities/user.entity';
 import { User as CurrentUser } from '../auth/decorators/user.decorator';
-import * as request from 'supertest';
+
 
 
 @ApiTags('teams')
