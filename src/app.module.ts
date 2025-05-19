@@ -8,6 +8,7 @@ import { CommonModule } from './common/common.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TestModule } from './test/test.module';
 import { TeamsModule } from './teams/teams.module';
+import { PlayersModule } from './players/players.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { TeamsModule } from './teams/teams.module';
     CommonModule,
     TestModule,
     TeamsModule,
+    PlayersModule,
   ],
   providers: [
     {
