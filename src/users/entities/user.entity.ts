@@ -16,7 +16,7 @@ export class User {
   email: string;
 
   @Column()
-  @Exclude() // evita exponerlo al serializar
+  @Exclude() 
   password: string;
 
   @Column({ type: 'varchar', default: 'user' })
