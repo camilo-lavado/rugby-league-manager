@@ -19,7 +19,6 @@ export class PlayersService {
   ) {}
 
   async create(dto: CreatePlayerDto, user?: User): Promise<Player> {
-    // Verificar si ya existe un jugador para el mismo user y team (evitar duplicados)
     const exists = await this.playerRepository.findOne({
       where: { userId: dto.userId, teamId: dto.teamId, deletedAt: IsNull() },
     });
@@ -86,8 +85,8 @@ export class PlayersService {
 
   async update(id: number, dto: UpdatePlayerDto, user?: User): Promise<Player> {
     const player = await this.findById(id);
-
-    // Validar duplicados si cambian userId o teamId
+    this.logger.log(`Actualizando jugador con ID: ${id}`);
+    this.logger.log(`Datos actuales: ${JSON.stringify(player)}`);
     if ((dto.userId && dto.userId !== player.userId) || (dto.teamId && dto.teamId !== player.teamId)) {
       const exists = await this.playerRepository.findOne({
         where: {

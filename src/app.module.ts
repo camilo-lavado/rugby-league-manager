@@ -9,6 +9,8 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TestModule } from './test/test.module';
 import { TeamsModule } from './teams/teams.module';
 import { PlayersModule } from './players/players.module';
+import { PositionsModule } from './positions/positions.module';
+import { PositionTypesModule } from './position_types/position_types.module';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { PlayersModule } from './players/players.module';
     TestModule,
     TeamsModule,
     PlayersModule,
+    PositionsModule,
+    PositionTypesModule,
   ],
   providers: [
     {
