@@ -11,7 +11,7 @@ import {
   } from 'typeorm';
   import { User } from '../../users/entities/user.entity';
   import { Team } from '../../teams/entities/team.entity';
-  // import { Position } from '../../positions/position.entity';
+import { Position } from '../../positions/entities/position.entity';
   // import { PlayerCaps } from '../../player-caps/player-caps.entity';
   // import { MatchParticipation } from '../../matches/entities/match-participation.entity';
   // import { PlayerSeasonStats } from '../../statistics/entities/player-season-stats.entity';
@@ -35,9 +35,9 @@ import {
     @Column({ name: 'team_id' })
     teamId: number;
   
-    // @ManyToOne(() => Position, { eager: true })
-    // @JoinColumn({ name: 'position_id' })
-    // position: Position;
+    @ManyToOne(() => Position, { eager: true })
+    @JoinColumn({ name: 'position_id' })
+    position: Position;
   
     @Column({ name: 'position_id' })
     positionId: number;
