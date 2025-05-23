@@ -11,6 +11,7 @@ import { TeamsModule } from './teams/teams.module';
 import { PlayersModule } from './players/players.module';
 import { PositionsModule } from './positions/positions.module';
 import { PositionTypesModule } from './position_types/position_types.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { PositionTypesModule } from './position_types/position_types.module';
     PlayersModule,
     PositionsModule,
     PositionTypesModule,
+    CategoriesModule,
   ],
   providers: [
     {
