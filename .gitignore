@@ -58,3 +58,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # Readme antiguo
 README-nest.md
 todo.md
+prod.env
