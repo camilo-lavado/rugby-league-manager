@@ -8,24 +8,22 @@ Este backend gestiona la lógica y datos de una plataforma para administrar liga
 
 ## 🧱 Características actuales
 
-🔐 Autenticación JWT segura
-🎭 Control de acceso por roles (admin, user)
-📄 CRUD completo para Leagues
-📄 CRUD completo para Teams
-📄 CRUD completo para Players
-✅ Validaciones de entrada con class-validator
-🧠 Paginación, filtros y búsqueda por nombre y país
-📦 Soft delete y restauración lógica
-👤 Auditoría (createdBy, updatedBy, deletedBy)
-📊 Documentación automática con Swagger
-♻️ Servicio de paginación genérico (PaginationService)
-🧪 Tests unitarios en controladores y servicios con Jest
-🧱 Estructura modular y escalable para futuros módulos (Teams, Players, etc.)
-🧱 Implementación de Throttle para protección contra ataques de fuerza bruta.
-✨ Swagger configurado para throttle.
-✨ Implementación de throttle.
-🧱 Modelo entidad-relación inicial.
-🛠️ Corrección para excluir datos sensibles en la respuesta.
+🔐 **Autenticación JWT segura**  
+🎭 **Control de acceso por roles** (admin, user)  
+📄 **CRUD completo** para Leagues, Teams y Players  
+✅ **Validaciones de entrada** con class-validator  
+🧠 **Paginación, filtros y búsqueda** por nombre y país  
+📦 **Soft delete y restauración** lógica  
+👤 **Auditoría completa** (createdBy, updatedBy, deletedBy)  
+📊 **Documentación automática** con Swagger  
+♻️ **Servicio de paginación genérico** (PaginationService)  
+🧪 **Tests unitarios** en controladores y servicios con Jest  
+🧱 **Estructura modular y escalable** para futuros módulos  
+🛡️ **Protección Throttle** contra ataques de fuerza bruta  
+🔒 **Configuración de seguridad** con Helmet  
+⚡ **Compresión de respuestas** para mejor performance  
+🌐 **CORS configurado** para desarrollo y producción  
+🚀 **Configuración optimizada** para deployment
 
 ---
 
@@ -62,7 +60,7 @@ src/
 ├── teams/             # Equipos de rugby (CRUD + seguridad)
 ├── common/            # Servicios reutilizables (ej: paginación)
 └── main.ts            # Bootstrap principal de NestJS
-```bash
+```
 
 ---
 
@@ -72,7 +70,19 @@ src/
 
 ```bash
 npm install
-```bash
+```
+
+### 🔧 Variables de entorno
+
+Crea un archivo `.env` en la raíz del proyecto:
+
+```env
+NODE_ENV=development
+PORT=3000
+HOST=0.0.0.0
+DATABASE_URL="tu_conexion_a_base_de_datos"
+JWT_SECRET="tu_jwt_secret_aqui"
+```
 
 ### ▶️ Correr en entorno de desarrollo
 
@@ -80,9 +90,7 @@ npm install
 npm run start:dev
 ```
 
----
-
-### ▶️ Correr pruebas entorno de desarrollo
+### ▶️ Correr pruebas
 
 ```bash
 npm run test
@@ -98,10 +106,10 @@ La autenticación se realiza con JWT. Los endpoints protegidos requieren incluir
 Authorization: Bearer <access_token>
 ```
 
-### Endpoints disponibles
+### Endpoints de autenticación
 
-- `POST /auth/register` – Registro de usuario
-- `POST /auth/login` – Login con email y password (retorna JWT)
+- `POST /api/v1/auth/register` – Registro de usuario
+- `POST /api/v1/auth/login` – Login con email y password (retorna JWT)
 
 ---
 
@@ -110,58 +118,63 @@ Authorization: Bearer <access_token>
 La documentación generada en tiempo real se encuentra en:
 
 ```bash
-http://localhost:3000/api
+http://localhost:3000/api/docs
 ```
 
-Incluye todas las rutas públicas y protegidas, con esquemas de DTOs, status y ejemplos.
+### 🔑 Cómo usar la autenticación en Swagger
+
+1. **Haz clic en el botón "Authorize" 🔒** en la esquina superior derecha
+2. **Ingresa tu JWT token** (sin la palabra "Bearer")
+3. **Haz clic en "Authorize"**
+4. Ahora puedes probar los endpoints protegidos
+
+> La documentación incluye todas las rutas públicas y protegidas, con esquemas de DTOs, status y ejemplos.
 
 ---
 
 ## 📚 Endpoints actuales
 
+> **Nota**: Todas las rutas tienen el prefijo `/api/v1/`
+
 ### `/leagues` (Ligas de Rugby)
 
-| Método | Ruta                 | Rol requerido |
-|--------|----------------------|---------------|
-| GET    | `/test/throttle`     | Público       |
-| GET    | `/leagues`           | Público       |
-| GET    | `/leagues/:id`       | Público       |
-| POST   | `/leagues`           | `admin`       |
-| PATCH    | `/leagues/:id`       | `admin`       |
-| DELETE | `/leagues/:id`       | `admin`       |
-
-> Las rutas de escritura (`POST`, `PATCH`, `DELETE`) están protegidas con `@Roles('admin')` y `@UseGuards(JwtAuthGuard, RolesGuard)`.
-> Las Rutas estan protegidas de forma global por throttle.
----
+| Método | Ruta                      | Rol requerido | Descripción                    |
+|--------|---------------------------|---------------|--------------------------------|
+| GET    | `/api/v1/leagues`         | Público       | Listar todas las ligas         |
+| GET    | `/api/v1/leagues/:id`     | Público       | Obtener liga por ID            |
+| POST   | `/api/v1/leagues`         | `admin`       | Crear nueva liga               |
+| PATCH  | `/api/v1/leagues/:id`     | `admin`       | Actualizar liga existente      |
+| DELETE | `/api/v1/leagues/:id`     | `admin`       | Eliminar liga (soft delete)    |
 
 ### `/teams` (Equipos de Rugby)
 
-| Método | Ruta                 | Rol requerido |
-|--------|----------------------|---------------|
-| GET    | `/test/throttle`     | Público       |
-| GET    | `/teams`           | Público       |
-| GET    | `/teams/:id`       | Público       |
-| POST   | `/teams`           | `admin`       |
-| PATCH    | `/teams/:id`       | `admin`       |
-| DELETE | `/teams/:id`       | `admin`       |
-
-> Las rutas de escritura (`POST`, `PATCH`, `DELETE`) están protegidas con `@Roles('admin')` y `@UseGuards(JwtAuthGuard, RolesGuard)`.
-> Las Rutas estan protegidas de forma global por throttle.
----
+| Método | Ruta                      | Rol requerido | Descripción                    |
+|--------|---------------------------|---------------|--------------------------------|
+| GET    | `/api/v1/teams`           | Público       | Listar todos los equipos       |
+| GET    | `/api/v1/teams/:id`       | Público       | Obtener equipo por ID          |
+| POST   | `/api/v1/teams`           | `admin`       | Crear nuevo equipo             |
+| PATCH  | `/api/v1/teams/:id`       | `admin`       | Actualizar equipo existente    |
+| DELETE | `/api/v1/teams/:id`       | `admin`       | Eliminar equipo (soft delete)  |
 
 ### `/players` (Jugadores de Rugby)
 
-| Método | Ruta                 | Rol requerido |
-|--------|----------------------|---------------|
-| GET    | `/test/throttle`     | Público       |
-| GET    | `/players`           | Público       |
-| GET    | `/players/:id`       | Público       |
-| POST   | `/players`           | `admin`       |
-| PATCH    | `/players/:id`       | `admin`       |
-| DELETE | `/players/:id`       | `admin`       |
+| Método | Ruta                      | Rol requerido | Descripción                    |
+|--------|---------------------------|---------------|--------------------------------|
+| GET    | `/api/v1/players`         | Público       | Listar todos los jugadores     |
+| GET    | `/api/v1/players/:id`     | Público       | Obtener jugador por ID         |
+| POST   | `/api/v1/players`         | `admin`       | Crear nuevo jugador            |
+| PATCH  | `/api/v1/players/:id`     | `admin`       | Actualizar jugador existente   |
+| DELETE | `/api/v1/players/:id`     | `admin`       | Eliminar jugador (soft delete) |
 
-> Las rutas de escritura (`POST`, `PATCH`, `DELETE`) están protegidas con `@Roles('admin')` y `@UseGuards(JwtAuthGuard, RolesGuard)`.
-> Las Rutas estan protegidas de forma global por throttle.
+### 🔒 Protecciones implementadas
+
+- **Throttle global**: Protección contra ataques de fuerza bruta
+- **Roles de usuario**: Control granular de permisos
+- **JWT Authentication**: Tokens seguros para autenticación
+- **Validación de datos**: Validación automática de DTOs
+- **Helmet**: Protección contra vulnerabilidades comunes
+
+---
 
 ## 🧪 Testing
 
@@ -172,21 +185,54 @@ Este proyecto incluye cobertura de pruebas:
 - ✅ Mocks de dependencias correctamente configurados
 - ✅ Todos los tests actuales pasan exitosamente
 
-### Comando
+### Comandos de testing
 
 ```bash
+# Ejecutar todos los tests
 npm run test
+
+# Tests en modo watch
+npm run test:watch
+
+# Cobertura de tests
+npm run test:cov
 ```
 
 > Tests E2E planificados para próximas fases.
 
 ---
 
+## 🏗️ Configuración de producción
+
+### Características incluidas
+
+- **Compresión gzip** para respuestas HTTP
+- **Helmet** para headers de seguridad
+- **CORS** configurado según el entorno
+- **Validaciones estrictas** con transformación automática
+- **Logs estructurados** con información del entorno
+- **Swagger deshabilitado** en producción
+
+### Variables de entorno para producción
+
+```env
+NODE_ENV=production
+PORT=3000
+HOST=0.0.0.0
+DATABASE_URL="tu_url_de_produccion"
+JWT_SECRET="jwt_secret_seguro_para_produccion"
+```
+
+---
+
 ## 🛠️ Roadmap en desarrollo
 
-- [ ] Implementación de entidades para metricas de players
-- [ ] Carga inicial de datos (seeders)(players, teams)
+- [ ] Implementación de entidades para métricas de players
+- [ ] Carga inicial de datos (seeders) para players y teams
 - [ ] Roles dinámicos desde BD
+- [ ] Tests E2E completos
+- [ ] Refresh tokens
+- [ ] Sistema de notificaciones por email
 
 ---
 
@@ -201,3 +247,15 @@ Desarrollador Fullstack · Psicólogo · Autodidacta 🧩
 ## 📄 Licencia
 
 Distribuido bajo la licencia [MIT](LICENSE).
+
+---
+
+## 🤝 Contribuir
+
+Las contribuciones son bienvenidas. Para cambios importantes:
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
