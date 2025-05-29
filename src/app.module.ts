@@ -24,7 +24,7 @@ import { CategoriesModule } from './categories/categories.module';
       ],
     }),
     ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot({
+    /*TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
       port: parseInt(process.env.DB_PORT || '5432'),
@@ -33,7 +33,17 @@ import { CategoriesModule } from './categories/categories.module';
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       synchronize: true, // Solo para desarrollo
+    }),*/
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: process.env.DATABASE_URL,
+      autoLoadEntities: true,
+      synchronize: true, // ⚠️ No usar en producción sin precaución
+      ssl: {
+        rejectUnauthorized: false,
+      },
     }),
+    
     LeaguesModule,
     AuthModule,
     UsersModule,
