@@ -44,8 +44,8 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-  // Configuración de Swagger (solo en desarrollo)
-  if (process.env.NODE_ENV !== 'production') {
+  // Configuración de Swagger (solo en produccion)
+  if (process.env.NODE_ENV == 'production') {
     const config = new DocumentBuilder()
       .setTitle('Rugby League Manager API')
       .setDescription('Documentación de la API para gestión de ligas de rugby')
@@ -61,7 +61,7 @@ async function bootstrap() {
         description: 'Ingresa tu token JWT',
         in: 'header',
       })
-      .addServer(`http://localhost:${process.env.PORT || 3000}`, 'Desarrollo')
+      .addServer(`http://localhost:${process.env.PORT || 3000}`, 'Production')
       .build();
 
     const document = SwaggerModule.createDocument(app, config);
@@ -82,7 +82,7 @@ async function bootstrap() {
   logger.log(`🚀 Servidor ejecutándose en: http://${HOST}:${PORT}`);
   logger.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
   
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV == 'production') {
     logger.log(`📚 Documentación Swagger: http://localhost:${PORT}/api/docs`);
   }
 }
