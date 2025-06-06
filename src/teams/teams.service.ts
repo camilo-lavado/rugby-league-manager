@@ -1,112 +1,64 @@
-import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository, ILike, FindOptionsWhere } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Team } from './entities/team.entity';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
-import { QueryTeamDto } from './dto/query-team.dto';
+import { BaseCrudService } from '../common/services/base-crud.service';
 import { User } from '../users/entities/user.entity';
 import { PaginationService } from '../common/services/pagination.service';
 
 @Injectable()
-export class TeamsService {
-  logger = new Logger(TeamsService.name);
+export class TeamsService extends BaseCrudService<Team> {
+  protected readonly logger = new Logger(TeamsService.name);
+
   constructor(
     @InjectRepository(Team)
     private readonly teamRepository: Repository<Team>,
-    private readonly paginationService: PaginationService,
-  ) {}
+    paginationService: PaginationService,
+  ) {
+    super(teamRepository, paginationService);
+  }
 
-  async create(dto: CreateTeamDto, user?: User): Promise<Team> {
-    const team = this.teamRepository.create({
+  async create(dto: CreateTeamDto, user: User): Promise<Team> {
+    this.logger.debug(`Creando equipo con nombre: ${dto.name}`);
+
+    const existing = await this.teamRepository.findOneBy({ name: dto.name });
+    if (existing) {
+      this.logger.error(`Ya existe un equipo con el nombre ${dto.name}`);
+      throw new ConflictException('Ya existe un registro con estos datos');
+    }
+
+    const nuevo = this.teamRepository.create({
       ...dto,
       createdBy: user,
     });
-    this.logger.log(`Creating team: ${team.name}`);
-    const existingTeam = await this.teamRepository.findOneBy({ name: team.name });
-    if (existingTeam) {
-      throw new ConflictException(`Ya existe un equipo con el nombre ${team.name}`);
-    }
-    this.logger.log(`Team created: ${team.name}`);
-    this.logger.log(`Team created by: ${user?.email}`);
-    return this.teamRepository.save(team);
+
+    return this.teamRepository.save(nuevo);
   }
 
-  async findAll(query: QueryTeamDto) {
-    const { page = 1, limit = 10, search, country, leagueId } = query;
-  
-    const where: FindOptionsWhere<Team>[] = [];
-  
-    if (search) {
-      where.push({ name: ILike(`%${search}%`), deletedAt: IsNull() });
+  async updateTeam(id: number, dto: UpdateTeamDto, user: User): Promise<Team> {
+    this.logger.debug(`Actualizando equipo ID ${id}`);
+
+    const existing = await this.teamRepository.findOneBy({ id });
+    if (!existing) {
+      this.logger.error(`No se encontró el equipo con ID ${id}`);
+      throw new NotFoundException(`No se encontró el registro con ID ${id}`);
     }
-  
-    if (country) {
-      where.push({ country: ILike(`%${country}%`), deletedAt: IsNull() });
+
+    if (dto.name) {
+      const duplicate = await this.teamRepository.findOneBy({ name: dto.name });
+      if (duplicate && duplicate.id !== id) {
+        this.logger.error(`Ya existe otro equipo con el nombre ${dto.name}`);
+        throw new ConflictException('Ya existe un registro con estos datos');
+      }
     }
-  
-    if (leagueId) {
-      where.push({ league: { id: leagueId }, deletedAt: IsNull() });
-    }
-  
-    if (!search && !country && !leagueId) {
-      where.push({ deletedAt: IsNull() });
-    }
-  
-    const [items, total] = await this.teamRepository.findAndCount({
-      where,
-      take: limit,
-      skip: (page - 1) * limit,
-      relations: ['league', 'createdBy', 'updatedBy', 'deletedBy'],
-      order: { name: 'ASC' },
+
+    const actualizado = this.teamRepository.merge(existing, {
+      ...dto,
+      updatedBy: user,
     });
-  
-    return this.paginationService.paginate(this.teamRepository, {
-      page,
-      limit,
-      where,
-      order: { name: 'ASC' },
-      relations: ['league', 'createdBy', 'updatedBy', 'deletedBy'],
-    });
+
+    return this.teamRepository.save(actualizado);
   }
-  
-  async findById(id: number): Promise<Team> {
-    const team = await this.teamRepository.findOneBy({ id });
-    if (!team) {
-      throw new NotFoundException(`Team with ID ${id} not found`);
-    }
-    return team;
-  }
-
-
-  async update(id: number, dto: UpdateTeamDto, user?: User): Promise<Team> {
-    const team = await this.findById(id);
-    if (!team) {
-      throw new NotFoundException(`Team with ID ${id} not found`);
-    } 
-    this.logger.log(`Updating team: ${team.name}`);
-    const existingTeam = await this.teamRepository.findOneBy({ name: dto.name });
-    if (existingTeam && existingTeam.id !== id) {
-      throw new ConflictException(`Ya existe un equipo con el nombre ${dto.name}`);
-    }
-    this.logger.log(`Team updated: ${team.name}`);
-    this.logger.log(`Team updated by: ${user?.email}`);
-    this.teamRepository.merge(team, dto);
-    return this.teamRepository.save(team);
-  }
-
-  async delete(id: number, user?: User): Promise<void> {
-    const team = await this.findById(id);
-    if (!team) {
-      throw new NotFoundException(`Team with ID ${id} not found`);
-    }
-    this.logger.log(`Deleting team: ${team.name}`);
-    team.deletedBy = user;
-    team.deletedAt = new Date();
-    await this.teamRepository.save(team);
-    this.logger.log(`Team deleted: ${team.name}`);
-    await this.teamRepository.softRemove(team);
-    this.logger.log(`Team deleted by: ${user?.email}`);
-}
-
 }

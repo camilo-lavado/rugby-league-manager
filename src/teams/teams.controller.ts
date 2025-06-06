@@ -1,37 +1,26 @@
 import {
   Controller,
+  Get,
   Post,
   Body,
-  Get,
+  Patch,
   Param,
   Delete,
-  Put,
+  Query,
   NotFoundException,
   UseGuards,
-  Query,
-  Patch,
 } from '@nestjs/common';
 import { TeamsService } from './teams.service';
-import { Team } from '../teams/entities/team.entity';
-import {
-  ApiTags,
-  ApiResponse,
-  ApiParam,
-  ApiBadRequestResponse,
-  ApiNotFoundResponse,
-  ApiCreatedResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
+import { QueryTeamDto } from './dto/query-team.dto';
+import { Team } from './entities/team.entity';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { QueryTeamDto } from './dto/query-team.dto';
 import { User } from '../users/entities/user.entity';
 import { User as CurrentUser } from '../auth/decorators/user.decorator';
-
-
 
 @ApiTags('teams')
 @Controller('teams')
@@ -41,39 +30,21 @@ export class TeamsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @ApiBearerAuth()
-  @ApiCreatedResponse({ description: 'Team created successfully' })
-  @ApiBadRequestResponse({ description: 'Invalid input data' })
   @Post()
-  async create(
-    @Body() createTeamDto: CreateTeamDto,
-    @CurrentUser() user: User,):
-    Promise<{ message: string; data: Team }> {
-    const team = await this.teamsService.create(createTeamDto, user);
-    return {
-      message: 'Team created successfully',
-      data: team,
-    };
+  async create(@Body() dto: CreateTeamDto, @CurrentUser() user: User): Promise<{ message: string; data: Team }> {
+    const team = await this.teamsService.create(dto, user);
+    return { message: 'Equipo creado exitosamente', data: team };
   }
 
   @Get()
-  @ApiResponse({ status: 200, description: 'List of teams retrieved successfully' })
-  async findAll(
-    @Query() query: QueryTeamDto,
-  ): Promise<{
-    message: string;
-    data: Team[];
-    meta: {
-      total: number;
-      page: number;
-      limit: number;
-    };
-  }> {
+  async findAll(@Query() query: QueryTeamDto) {
     const result = await this.teamsService.findAll(query);
-    if (!result.data || result.data.length === 0) {
-      throw new NotFoundException('No teams found');
+    if (!result.data.length) {
+      throw new NotFoundException('No se encontraron equipos');
     }
+
     return {
-      message: 'Teams retrieved successfully',
+      message: 'Equipos obtenidos correctamente',
       data: result.data,
       meta: {
         total: result.total,
@@ -84,16 +55,10 @@ export class TeamsController {
   }
 
   @Get(':id')
-  @ApiResponse({ status: 200, description: 'Team retrieved successfully' })
-  @ApiNotFoundResponse({ description: 'Team not found' })
-  @ApiParam({ name: 'id', description: 'Team ID' })
-  async findOne(@Param('id') id: number): Promise<{ message: string; data: Team }> {
+  async findOne(@Param('id') id: number) {
     const team = await this.teamsService.findById(id);
-    if (!team) {
-      throw new NotFoundException(`Team with ID ${id} not found`);
-    }
     return {
-      message: 'Team retrieved successfully',
+      message: 'Equipo encontrado',
       data: team,
     };
   }
@@ -102,21 +67,14 @@ export class TeamsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @ApiBearerAuth()
-  @ApiResponse({ status: 200, description: 'Team updated successfully' })
-  @ApiNotFoundResponse({ description: 'Team not found' })
-  @ApiBadRequestResponse({ description: 'Invalid input data' })
-  @ApiParam({ name: 'id', description: 'Team ID', type: Number })
   async update(
     @Param('id') id: number,
-    @Body() updateTeamDto: UpdateTeamDto,
+    @Body() dto: UpdateTeamDto,
     @CurrentUser() user: User,
-  ): Promise<{ message: string; data: Team }> {
-    const team = await this.teamsService.update(id, updateTeamDto, user);
-    if (!team) {
-      throw new NotFoundException(`Team with ID ${id} not found`);
-    }
+  ) {
+    const team = await this.teamsService.updateTeam(id, dto, user);
     return {
-      message: 'Team updated successfully',
+      message: 'Equipo actualizado correctamente',
       data: team,
     };
   }
@@ -125,19 +83,8 @@ export class TeamsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @ApiBearerAuth()
-  @ApiResponse({ status: 200, description: 'Team deleted successfully' })
-  @ApiNotFoundResponse({ description: 'Team not found' })
-  @ApiParam({ name: 'id', description: 'Team ID', type: Number })
-  async remove(
-    @Param('id') id: number,
-    @CurrentUser() user: User,
-  ): Promise<{ message: string }> {
-    await this.teamsService.delete(id, user);
-    return {
-      message: 'Team deleted successfully',
-    };
+  async remove(@Param('id') id: number, @CurrentUser() user: User) {
+    await this.teamsService.delete(id);
+    return { message: 'Equipo eliminado correctamente' };
   }
-
-
-
 }
