@@ -4,8 +4,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { Repository } from 'typeorm';
 import { PaginationService } from '../common/services/pagination.service';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { User } from '../users/entities/user.entity';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 describe('CategoriesService', () => {
   let service: CategoriesService;
@@ -71,5 +72,46 @@ describe('CategoriesService', () => {
     await expect(
       service.create({ name: 'Professional', type: 'league' }, {} as User),
     ).rejects.toThrow(ConflictException);
+  });
+
+  describe('updateCategory', () => {
+    const user = { id: 1, email: 'admin@test.com' } as User;
+
+    it('should update a category successfully', async () => {
+      const id = 1;
+      const dto: UpdateCategoryDto = { name: 'Updated', type: 'league' };
+      const existing = { id, name: 'Old', type: 'league' };
+
+      mockRepo.findOneBy
+        .mockResolvedValueOnce(existing) // find by ID
+        .mockResolvedValueOnce(null);   // no duplicate
+
+      mockRepo.merge.mockReturnValue({ ...existing, ...dto, updatedBy: user });
+      mockRepo.save.mockResolvedValue({ ...existing, ...dto, updatedBy: user });
+
+      const result = await service.updateCategory(id, dto, user);
+
+      expect(mockRepo.merge).toHaveBeenCalledWith(existing, expect.objectContaining({ name: 'Updated' }));
+      expect(result).toEqual({ ...existing, ...dto, updatedBy: user });
+    });
+
+    it('should throw NotFoundException if category not found', async () => {
+      mockRepo.findOneBy.mockResolvedValue(null);
+
+      await expect(service.updateCategory(999, { name: 'X' }, {} as User)).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw ConflictException if name already exists in another category', async () => {
+      const id = 1;
+      const dto: UpdateCategoryDto = { name: 'Existing', type: 'league' };
+      const existing = { id, name: 'Original', type: 'league' };
+      const duplicate = { id: 2, name: 'Existing', type: 'league' };
+
+      mockRepo.findOneBy
+        .mockResolvedValueOnce(existing) // find by ID
+        .mockResolvedValueOnce(duplicate); // duplicate name
+
+      await expect(service.updateCategory(id, dto, user)).rejects.toThrow(ConflictException);
+    });
   });
 });
