@@ -35,9 +35,9 @@ import { Position } from '../../positions/entities/position.entity';
     @Column({ name: 'team_id' })
     teamId: number;
   
-    @ManyToOne(() => Position, { eager: true })
+    /*@ManyToOne(() => Position, { eager: true })
     @JoinColumn({ name: 'position_id' })
-    position: Position;
+    position: Position;*/
   
     @Column({ name: 'position_id' })
     positionId: number;
