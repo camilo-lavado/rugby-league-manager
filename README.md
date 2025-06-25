@@ -1,8 +1,8 @@
 # Rugby League Manager - Backend API
 
-**Rugby League Manager** es una API desarrollada en [NestJS](https://nestjs.com).
+**Rugby League Manager** es una API profesional desarrollada con [NestJS](https://nestjs.com) + PostgreSQL, diseñada para administrar ligas, equipos, jugadores y partidos de rugby en Chile y Latinoamérica.
 
-Este backend gestiona la lógica y datos de una plataforma para administrar ligas de rugby. Aplica principios de arquitectura modular, pruebas automatizadas y estándares de producción.
+Aplica principios de arquitectura modular, seguridad robusta, pruebas automatizadas y escalabilidad real.
 
 ---
 
@@ -10,252 +10,159 @@ Este backend gestiona la lógica y datos de una plataforma para administrar liga
 
 🔐 **Autenticación JWT segura**  
 🎭 **Control de acceso por roles** (admin, user)  
-📄 **CRUD completo** para Leagues, Teams y Players  
-✅ **Validaciones de entrada** con class-validator  
-🧠 **Paginación, filtros y búsqueda** por nombre y país  
-📦 **Soft delete y restauración** lógica  
-👤 **Auditoría completa** (createdBy, updatedBy, deletedBy)  
-📊 **Documentación automática** con Swagger  
-♻️ **Servicio de paginación genérico** (PaginationService)  
-🧪 **Tests unitarios** en controladores y servicios con Jest  
-🧱 **Estructura modular y escalable** para futuros módulos  
-🛡️ **Protección Throttle** contra ataques de fuerza bruta  
-🔒 **Configuración de seguridad** con Helmet  
-⚡ **Compresión de respuestas** para mejor performance  
-🌐 **CORS configurado** para desarrollo y producción  
-🚀 **Configuración optimizada** para deployment
+📄 **CRUD completo** para entidades clave del sistema  
+🧠 **Paginación, filtros y búsqueda** en todos los endpoints  
+✅ **Validaciones estrictas** en DTOs con class-validator  
+📦 **Soft delete** y campos de auditoría (createdBy, updatedBy, etc.)  
+🔎 **Búsqueda por texto y filtros por campos numéricos**  
+🧪 **Tests unitarios** en servicios y controladores con Jest  
+🧱 **Estructura modular y reutilizable**  
+📊 **Swagger automático** y actualizado dinámicamente  
+🛡️ **Throttle + Helmet + CORS** para máxima seguridad  
+♻️ **Servicio genérico de paginación** (`PaginationService`)  
+🧰 **BaseCrudService\`T\`** para crear servicios DRY y mantenibles
 
 ---
 
-## 💡 Próximas características
+## 📦 Entidades implementadas
 
-- ✅ E2E tests con login y autorización
-- ✅ Seeder para datos iniciales
-- 🔄 Soporte para Refresh Tokens
-- 📧 Envío de correos al registrar usuario
-- 🌍 Internacionalización de mensajes
-
----
-
-## 🧩 Diagrama Entidad-Relación (ERD)
-
-El modelo de datos ha sido diseñado para cumplir con las tres formas normales de normalización.
-
-Puedes visualizar o editar el diagrama en [dbdiagram.io](https://dbdiagram.io) utilizando el archivo:
-
-📄 [`docs/schema.dbml`](./docs/database/schema.dbml)
-
-Esto permite mantener sincronizado el diseño lógico con la implementación en código.
-
----
-
-## 📁 Estructura del proyecto
-
-```bash
-src/
-├── auth/              # Autenticación, JWT y guards
-├── users/             # Gestión de usuarios y roles
-├── leagues/           # Ligas de rugby (CRUD + seguridad)
-├── players/           # Jugadores de rugby (CRUD + seguridad)
-├── teams/             # Equipos de rugby (CRUD + seguridad)
-├── common/            # Servicios reutilizables (ej: paginación)
-└── main.ts            # Bootstrap principal de NestJS
-```
-
----
-
-## 🚀 Setup del proyecto
-
-### 📦 Instalación de dependencias
-
-```bash
-npm install
-```
-
-### 🔧 Variables de entorno
-
-Crea un archivo `.env` en la raíz del proyecto:
-
-```env
-NODE_ENV=development
-PORT=3000
-HOST=0.0.0.0
-DATABASE_URL="tu_conexion_a_base_de_datos"
-JWT_SECRET="tu_jwt_secret_aqui"
-```
-
-### ▶️ Correr en entorno de desarrollo
-
-```bash
-npm run start:dev
-```
-
-### ▶️ Correr pruebas
-
-```bash
-npm run test
-```
-
----
-
-## 🔐 Autenticación
-
-La autenticación se realiza con JWT. Los endpoints protegidos requieren incluir un token con formato:
-
-```bash
-Authorization: Bearer <access_token>
-```
-
-### Endpoints de autenticación
-
-- `POST /api/v1/auth/register` – Registro de usuario
-- `POST /api/v1/auth/login` – Login con email y password (retorna JWT)
+| Entidad           | Descripción                                                |
+|-------------------|------------------------------------------------------------|
+| `auth`            | Registro, login y generación de JWT                        |
+| `users`           | Gestión de usuarios y perfiles                             |
+| `roles`           | Control de roles por nombre (`admin`, `user`, etc.)        |
+| `permissions`     | Permisos (con soporte para futuros controles dinámicos)    |
+| `leagues`         | Ligas de rugby                                             |
+| `categories`      | Categorías regionales o temáticas                          |
+| `teams`           | Equipos de rugby                                           |
+| `players`         | Jugadores vinculados a usuarios y equipos                  |
+| `positions`       | Posiciones en cancha (ej: wing, hooker, fullback...)       |
+| `position_types`  | Tipos de posición (ataque, defensa)                        |
+| `stadiums`        | Estadios de juego                                          |
+| `seasons`         | Temporadas deportivas                                      |
+| `divisions`       | Divisiones internas dentro de una liga                    |
+| `standings`       | Tabla de posiciones con puntos, tries, recibidos, etc.     |
+| `fixtures`        | Calendario de partidos (fixtures)                          |
 
 ---
 
 ## 📘 Swagger
 
-La documentación generada en tiempo real se encuentra en:
+La documentación en tiempo real está disponible en:
 
 ```bash
 http://localhost:3000/api/docs
 ```
 
-### 🔑 Cómo usar la autenticación en Swagger
+### 🔑 Autenticación en Swagger
 
-1. **Haz clic en el botón "Authorize" 🔒** en la esquina superior derecha
-2. **Ingresa tu JWT token** (sin la palabra "Bearer")
-3. **Haz clic en "Authorize"**
-4. Ahora puedes probar los endpoints protegidos
-
-> La documentación incluye todas las rutas públicas y protegidas, con esquemas de DTOs, status y ejemplos.
+1. Haz clic en "Authorize"
+2. Ingresa tu JWT **sin** el prefijo `Bearer`
+3. Ya puedes probar endpoints protegidos
 
 ---
 
-## 📚 Endpoints actuales
+## 🚀 Setup del proyecto
 
-> **Nota**: Todas las rutas tienen el prefijo `/api/v1/`
+### 1. Clona el repositorio
 
-### `/leagues` (Ligas de Rugby)
+```bash
+git clone https://github.com/tu-usuario/rugby-league-manager-Backend.git
+cd rugby-league-manager-Backend
+```
 
-| Método | Ruta                      | Rol requerido | Descripción                    |
-|--------|---------------------------|---------------|--------------------------------|
-| GET    | `/api/v1/leagues`         | Público       | Listar todas las ligas         |
-| GET    | `/api/v1/leagues/:id`     | Público       | Obtener liga por ID            |
-| POST   | `/api/v1/leagues`         | `admin`       | Crear nueva liga               |
-| PATCH  | `/api/v1/leagues/:id`     | `admin`       | Actualizar liga existente      |
-| DELETE | `/api/v1/leagues/:id`     | `admin`       | Eliminar liga (soft delete)    |
+### 2. Instala dependencias
 
-### `/teams` (Equipos de Rugby)
+```bash
+npm install
+```
 
-| Método | Ruta                      | Rol requerido | Descripción                    |
-|--------|---------------------------|---------------|--------------------------------|
-| GET    | `/api/v1/teams`           | Público       | Listar todos los equipos       |
-| GET    | `/api/v1/teams/:id`       | Público       | Obtener equipo por ID          |
-| POST   | `/api/v1/teams`           | `admin`       | Crear nuevo equipo             |
-| PATCH  | `/api/v1/teams/:id`       | `admin`       | Actualizar equipo existente    |
-| DELETE | `/api/v1/teams/:id`       | `admin`       | Eliminar equipo (soft delete)  |
+### 3. Variables de entorno
 
-### `/players` (Jugadores de Rugby)
+Crea un archivo `.env`:
 
-| Método | Ruta                      | Rol requerido | Descripción                    |
-|--------|---------------------------|---------------|--------------------------------|
-| GET    | `/api/v1/players`         | Público       | Listar todos los jugadores     |
-| GET    | `/api/v1/players/:id`     | Público       | Obtener jugador por ID         |
-| POST   | `/api/v1/players`         | `admin`       | Crear nuevo jugador            |
-| PATCH  | `/api/v1/players/:id`     | `admin`       | Actualizar jugador existente   |
-| DELETE | `/api/v1/players/:id`     | `admin`       | Eliminar jugador (soft delete) |
+```env
+NODE_ENV=development
+PORT=3000
+HOST=0.0.0.0
+DATABASE_URL=postgres://user:pass@localhost:5432/rugby_db
+JWT_SECRET=super_jwt_secret
+```
 
-### 🔒 Protecciones implementadas
+### 4. Corre la app en modo desarrollo
 
-- **Throttle global**: Protección contra ataques de fuerza bruta
-- **Roles de usuario**: Control granular de permisos
-- **JWT Authentication**: Tokens seguros para autenticación
-- **Validación de datos**: Validación automática de DTOs
-- **Helmet**: Protección contra vulnerabilidades comunes
+```bash
+npm run start:dev
+```
+
+---
+
+## 🧩 Diagrama Entidad-Relación (ERD)
+
+El diseño de base de datos cumple con buenas prácticas de normalización.
+
+Puedes ver el diagrama completo en [`docs/schema.dbml`](./docs/database/schema.dbml)
 
 ---
 
 ## 🧪 Testing
 
-Este proyecto incluye cobertura de pruebas:
+Este proyecto incluye:
 
-- ✅ **Unit tests** de `Services` y `Controllers`
-- 🧪 Ejecutados con `Jest` y `@nestjs/testing`
-- ✅ Mocks de dependencias correctamente configurados
-- ✅ Todos los tests actuales pasan exitosamente
-
-### Comandos de testing
+- ✅ Unit tests con mocks en services y controllers
+- 🧪 Jest configurado con cobertura
+- ✅ DTOs validados automáticamente
 
 ```bash
-# Ejecutar todos los tests
-npm run test
-
-# Tests en modo watch
-npm run test:watch
-
-# Cobertura de tests
-npm run test:cov
+npm run test         # Ejecuta todos los tests
+npm run test:watch   # Corre tests en modo observación
+npm run test:cov     # Cobertura
 ```
-
-> Tests E2E planificados para próximas fases.
 
 ---
 
-## 🏗️ Configuración de producción
+## 🔒 Seguridad
 
-### Características incluidas
+- ✅ JWT con expiración de 24h
+- ✅ Roles y protección por `@Roles()` + `RolesGuard`
+- ✅ `@CurrentUser()` decorador global
+- ✅ Throttling por IP con `@Throttle()`
+- ✅ Headers seguros (`helmet`)
+- ✅ CORS separado por entorno
 
-- **Compresión gzip** para respuestas HTTP
-- **Helmet** para headers de seguridad
-- **CORS** configurado según el entorno
-- **Validaciones estrictas** con transformación automática
-- **Logs estructurados** con información del entorno
-- **Swagger deshabilitado** en producción
+---
 
-### Variables de entorno para producción
+## 🔄 Convenciones adoptadas
 
-```env
-NODE_ENV=production
-PORT=3000
-HOST=0.0.0.0
-DATABASE_URL="tu_url_de_produccion"
-JWT_SECRET="jwt_secret_seguro_para_produccion"
-```
+- DTOs segmentados: `create-*.dto.ts`, `update-*.dto.ts`, `query-*.dto.ts`
+- DTOs de query sin `@IsNumberString()` para evitar errores comunes
+- Validaciones consistentes en todos los `QueryDto`
+- Archivos organizados por módulo
+- Todas las respuestas están paginadas cuando aplica
+- Respuestas estructuradas con `{ message, data, meta? }`
 
 ---
 
 ## 🛠️ Roadmap en desarrollo
 
-- [ ] Implementación de entidades para métricas de players
-- [ ] Carga inicial de datos (seeders) para players y teams
-- [ ] Roles dinámicos desde BD
-- [ ] Tests E2E completos
-- [ ] Refresh tokens
-- [ ] Sistema de notificaciones por email
+- [ ] Módulos de estadísticas por partido
+- [ ] Seeders de datos iniciales (`leagues`, `players`, `positions`)
+- [ ] Emails automáticos en registro
+- [ ] Refresh tokens y logout seguro
+- [ ] Soporte para inscripciones de jugadores vía frontend
+- [ ] Notificaciones y recordatorios
+- [ ] Tests E2E
 
 ---
 
 ## 👨‍💻 Autor
 
 **Camilo Lavado**  
-Desarrollador Fullstack · Psicólogo · Autodidacta 🧩  
+Desarrollador Backend · Apasionado por el rugby y la calidad de código  
 🔗 [GitHub](https://github.com/camilo-lavado)
 
 ---
 
 ## 📄 Licencia
 
-Distribuido bajo la licencia [MIT](LICENSE).
-
----
-
-## 🤝 Contribuir
-
-Las contribuciones son bienvenidas. Para cambios importantes:
-
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+MIT
