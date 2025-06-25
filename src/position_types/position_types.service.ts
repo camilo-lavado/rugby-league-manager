@@ -1,65 +1,42 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
-import { PositionType } from '../position_types/entities/position_type.entity';
-import { CreatePositionTypeDto } from '../position_types/dto/create-position_type.dto';
-import { UpdatePositionTypeDto } from '../position_types/dto/update-position_type.dto';
-import { PaginationService } from '../common/services/pagination.service';
-import { QueryPositionTypeDto } from './dto/query-position_type.dto.';
+import { Repository } from 'typeorm';
+import { PositionType } from './entities/position_type.entity';
+import { CreatePositionTypeDto } from './dto/create-position_type.dto';
+import { UpdatePositionTypeDto } from './dto/update-position_type.dto';
 
 @Injectable()
 export class PositionTypesService {
-  private readonly logger = new Logger(PositionTypesService.name);
-
   constructor(
     @InjectRepository(PositionType)
-    private readonly positionTypeRepository: Repository<PositionType>,
-    private readonly _paginationService: PaginationService,
+    private readonly repository: Repository<PositionType>,
   ) {}
 
-  async create(dto: CreatePositionTypeDto): Promise<PositionType> {
-    const exists = await this.positionTypeRepository.findOneBy({ name: dto.name });
-    if (exists) throw new ConflictException(`Ya existe un tipo de posición con nombre ${dto.name}`);
-
-    const created = this.positionTypeRepository.create(dto);
-    return this.positionTypeRepository.save(created);
+  create(dto: CreatePositionTypeDto) {
+    const entity = this.repository.create(dto);
+    return this.repository.save(entity);
   }
 
-  async findAll(query: QueryPositionTypeDto) {
-    const where: any = {};
-    if (query.search) {
-      where.name = ILike(`%${query.search}%`);
+  findAll() {
+    return this.repository.find();
+  }
+
+  async findOne(id: number) {
+    const found = await this.repository.findOneBy({ id });
+    if (!found) {
+      throw new NotFoundException(`No se encontró position_type con ID ${id}`);
     }
-
-    return this._paginationService.paginate(this.positionTypeRepository, {
-      page: query.page,
-      limit: query.limit,
-      where,
-      order: { name: 'ASC' },
-    });
-  }
-  
-
-  async findOne(id: number): Promise<PositionType> {
-    const type = await this.positionTypeRepository.findOneBy({ id });
-    if (!type) throw new NotFoundException(`Tipo de posición ${id} no encontrado`);
-    return type;
+    return found;
   }
 
-  async update(id: number, dto: UpdatePositionTypeDto): Promise<PositionType> {
-    const type = await this.findOne(id);
-    const updated = this.positionTypeRepository.merge(type, dto);
-    return this.positionTypeRepository.save(updated);
+  async update(id: number, dto: UpdatePositionTypeDto) {
+    const existing = await this.findOne(id);
+    const updated = this.repository.merge(existing, dto);
+    return this.repository.save(updated);
   }
-  
 
-  async remove(id: number): Promise<void> {
-    const type = await this.findOne(id);
-    await this.positionTypeRepository.softRemove(type);
+  async remove(id: number) {
+    const existing = await this.findOne(id);
+    return this.repository.softRemove(existing);
   }
 }

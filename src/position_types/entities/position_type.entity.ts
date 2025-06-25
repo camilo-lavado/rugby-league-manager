@@ -2,12 +2,10 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    OneToMany,
     CreateDateColumn,
     UpdateDateColumn,
     DeleteDateColumn,
   } from 'typeorm';
-  import { Position } from '../../positions/entities/position.entity'; // Asegúrate de ajustar el path según tu estructura
   
   @Entity('position_types')
   export class PositionType {
@@ -16,9 +14,6 @@ import {
   
     @Column({ type: 'varchar' })
     name: string;
-  
-    @OneToMany(() => Position, (position) => position.type)
-    positions: Position[];
   
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;

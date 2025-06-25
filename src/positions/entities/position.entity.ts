@@ -1,40 +1,52 @@
-import { PositionType } from '../../position_types/entities/position_type.entity';
 import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
     ManyToOne,
-    OneToMany,
-    JoinColumn,
     CreateDateColumn,
     UpdateDateColumn,
     DeleteDateColumn,
+    JoinColumn,
   } from 'typeorm';
-
-@Entity('positions')
-export class Position {
-@PrimaryGeneratedColumn()
-id: number;
-
-@Column({ name: 'name', type: 'varchar', length: 50 })
-name: string;
-
-
-@Column({name:'type_id', type: 'int'})
-typeId: number;
-
-@ManyToOne(() => PositionType, (type) => type.positions, { eager: true })
-@JoinColumn({ name: 'type_id' })
-type: PositionType;
-
-//Auditoria
-@CreateDateColumn({ name: 'created_at' })
-createdAt: Date;
-
-@UpdateDateColumn({ name: 'updated_at' })
-updatedAt: Date;
-
-@DeleteDateColumn({ name: 'deleted_at' })
-deletedAt?: Date;
-
-}
+  import { PositionType } from '../../position_types/entities/position_type.entity';
+  import { User } from '../../users/entities/user.entity';
+  
+  @Entity('positions')
+  export class Position {
+    @PrimaryGeneratedColumn()
+    id: number;
+  
+    @Column()
+    name: string;
+  
+    @Column({ name: 'type_id' })
+    typeId: number;
+  
+    @ManyToOne(() => PositionType, { eager: true })
+    @JoinColumn({ name: 'type_id' })
+    type: PositionType;
+  
+    // Auditoría
+  
+    @CreateDateColumn({ name: 'created_at' })
+    createdAt: Date;
+  
+    @UpdateDateColumn({ name: 'updated_at' })
+    updatedAt: Date;
+  
+    @DeleteDateColumn({ name: 'deleted_at' })
+    deletedAt?: Date;
+  
+    @ManyToOne(() => User, { nullable: true, eager: true })
+    @JoinColumn({ name: 'created_by' })
+    createdBy?: User;
+  
+    @ManyToOne(() => User, { nullable: true, eager: true })
+    @JoinColumn({ name: 'updated_by' })
+    updatedBy?: User;
+  
+    @ManyToOne(() => User, { nullable: true, eager: true })
+    @JoinColumn({ name: 'deleted_by' })
+    deletedBy?: User;
+  }
+  

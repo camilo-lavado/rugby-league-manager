@@ -1,83 +1,60 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, Logger, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike, IsNull, FindOptionsWhere } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Position } from './entities/position.entity';
+import { PaginationService } from '../common/services/pagination.service';
+import { BaseCrudService } from '../common/services/base-crud.service';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { UpdatePositionDto } from './dto/update-position.dto';
-import { QueryPositionDto } from './dto/query-position.dto';
-import { PaginationService } from '../common/services/pagination.service';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
-export class PositionsService {
-  private readonly logger = new Logger(PositionsService.name);
+export class PositionsService extends BaseCrudService<Position> {
+  protected readonly logger = new Logger(PositionsService.name);
 
   constructor(
     @InjectRepository(Position)
     private readonly positionRepository: Repository<Position>,
-    private readonly paginationService: PaginationService,
-  ) {}
-
-  async create(dto: CreatePositionDto): Promise<Position> {
-    const exists = await this.positionRepository.findOneBy({
-      name: dto.name,
-      typeId: dto.typeId,
-    });
-    if (exists) {
-      throw new ConflictException('Ya existe una posición con ese nombre y tipo');
-    }
-    const position = this.positionRepository.create(dto);
-    return this.positionRepository.save(position);
+    paginationService: PaginationService,
+  ) {
+    super(positionRepository, paginationService);
   }
 
-  async findAll(query: QueryPositionDto) {
-    const { page = 1, limit = 10, search, typeId } = query;
-    const where: FindOptionsWhere<Position>[] = [];
+  async create(dto: CreatePositionDto, user: User): Promise<Position> {
+    this.logger.debug(`Creando posición con nombre: ${dto.name}`);
 
-    if (search) {
-      where.push({ name: ILike(`%${search}%`), deletedAt: IsNull() });
+    const existing = await this.positionRepository.findOneBy({ name: dto.name });
+    if (existing) {
+      this.logger.error(`Ya existe una posición con el nombre ${dto.name}`);
+      throw new ConflictException('Ya existe un registro con estos datos');
     }
-    if (typeId !== undefined) {
-      if (where.length > 0) {
-        where.forEach((w, i) => (where[i] = { ...w, typeId }));
-      } else {
-        where.push({ typeId, deletedAt: IsNull() });
+
+    const nueva = this.positionRepository.create({ ...dto, createdBy: user });
+    return this.positionRepository.save(nueva);
+  }
+
+  async updatePosition(id: number, dto: UpdatePositionDto, user: User): Promise<Position> {
+    this.logger.debug(`Actualizando posición ID ${id}`);
+
+    const existing = await this.positionRepository.findOneBy({ id });
+    if (!existing) {
+      this.logger.error(`No se encontró la posición con ID ${id}`);
+      throw new NotFoundException(`No se encontró el registro con ID ${id}`);
+    }
+
+    if (dto.name) {
+      const duplicate = await this.positionRepository.findOneBy({ name: dto.name });
+      if (duplicate && duplicate.id !== id) {
+        this.logger.error(`Ya existe otra posición con el nombre ${dto.name}`);
+        throw new ConflictException('Ya existe un registro con estos datos');
       }
     }
-    if (where.length === 0) {
-      where.push({ deletedAt: IsNull() });
-    }
 
-    return this.paginationService.paginate(this.positionRepository, {
-      page,
-      limit,
-      where,
-      order: { id: 'ASC' },
+    const actualizado = this.positionRepository.merge(existing, {
+      ...dto,
+      updatedBy: user,
     });
-  }
 
-  async findOne(id: number): Promise<Position> {
-    const position = await this.positionRepository.findOne({
-      where: { id, deletedAt: IsNull() },
-    });
-    if (!position) {
-      throw new NotFoundException('Posición no encontrada');
-    }
-    return position;
-  }
-
-  async update(id: number, dto: UpdatePositionDto): Promise<Position> {
-    const position = await this.findOne(id);
-    Object.assign(position, dto);
-    return this.positionRepository.save(position);
-  }
-
-  async remove(id: number): Promise<void> {
-    const position = await this.findOne(id);
-    await this.positionRepository.softRemove(position);
+    return this.positionRepository.save(actualizado);
   }
 }

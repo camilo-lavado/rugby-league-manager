@@ -3,11 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PositionsService } from './positions.service';
 import { PositionsController } from './positions.controller';
 import { Position } from './entities/position.entity';
-import { CommonModule } from '../common/common.module';
+import { PaginationService } from '../common/services/pagination.service';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([Position]),
-CommonModule],
+  imports: [TypeOrmModule.forFeature([Position])],
   controllers: [PositionsController],
-  providers: [PositionsService],
+  providers: [PositionsService, PaginationService],
 })
 export class PositionsModule {}
