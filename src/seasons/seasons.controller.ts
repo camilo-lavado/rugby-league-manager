@@ -15,12 +15,10 @@ import { CreateSeasonDto } from './dto/create-season.dto';
 import { UpdateSeasonDto } from './dto/update-season.dto';
 import { QuerySeasonDto } from './dto/query-season.dto';
 import { Season } from './entities/season.entity';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { User } from '../users/entities/user.entity';
-import { User as CurrentUser } from '../auth/decorators/user.decorator';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('seasons')
 @Controller('seasons')
@@ -33,7 +31,6 @@ export class SeasonsController {
   @Post()
   async create(
     @Body() dto: CreateSeasonDto,
-    @CurrentUser() user: User,
   ): Promise<{ message: string; data: Season }> {
     const season = await this.seasonsService.create(dto);
     return {
@@ -80,7 +77,6 @@ export class SeasonsController {
   async update(
     @Param('id') id: number,
     @Body() dto: UpdateSeasonDto,
-    @CurrentUser() user: User,
   ) {
     const season = await this.seasonsService.updateSeason(id, dto);
     return {
@@ -93,7 +89,7 @@ export class SeasonsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @ApiBearerAuth()
-  async remove(@Param('id') id: number, @CurrentUser() user: User) {
+  async remove(@Param('id') id: number) {
     await this.seasonsService.delete(id);
     return {
       message: 'Temporada eliminada correctamente',
