@@ -1,15 +1,17 @@
-import { IsOptional, IsString, IsNumberString } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { IsOptional, IsString, IsNumber, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class QueryStadiumDto {
   @IsOptional()
-  @IsNumberString()
-  @Transform(({ value }) => parseInt(value))
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
   page?: number = 1;
 
   @IsOptional()
-  @IsNumberString()
-  @Transform(({ value }) => parseInt(value))
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
   limit?: number = 10;
 
   @IsOptional()

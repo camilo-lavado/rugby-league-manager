@@ -3,10 +3,10 @@ dotenv.config();
 
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { 
-  ClassSerializerInterceptor, 
+import {
+  ClassSerializerInterceptor,
   ValidationPipe,
-  Logger 
+  Logger,
 } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -17,42 +17,42 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const logger = new Logger('Bootstrap');
 
-
   app.use(helmet());
   app.use(compression());
   app.enableCors({
-    origin: process.env.NODE_ENV === 'production' 
-      ? ['https://tu-dominio.com'] // Cambiar por tu dominio en producción
-      : true, // En desarrollo permite cualquier origen
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? ['https://rugby-league-manager-backend.onrender.com/']
+        : true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-
   app.setGlobalPrefix('api/v1');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
-      transform: true, 
+      transform: true,
       transformOptions: {
         enableImplicitConversion: true,
       },
-    })
+    }),
   );
 
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector)),
+  );
 
-  // Configuración de Swagger (solo en produccion)
-  if (process.env.NODE_ENV == 'production') {
+  // Swagger habilitado en todos los entornos excepto pruebas
+  if (process.env.NODE_ENV !== 'test') {
     const config = new DocumentBuilder()
       .setTitle('Rugby League Manager API')
       .setDescription('Documentación de la API para gestión de ligas de rugby')
       .setVersion('1.0')
       .addTag('leagues')
-      .addTag('auth')
-      .addTag('users')
       .addBearerAuth({
         type: 'http',
         scheme: 'bearer',
@@ -61,30 +61,28 @@ async function bootstrap() {
         description: 'Ingresa tu token JWT',
         in: 'header',
       })
-      .addServer(`http://localhost:${process.env.PORT || 3000}`, 'Production')
+      .addServer(`http://localhost:${process.env.PORT || 3000}`, 'Local')
       .build();
 
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api/docs', app, document, {
       swaggerOptions: {
-        persistAuthorization: true, // Mantiene la autorización al recargar
+        persistAuthorization: true,
       },
     });
+
+    logger.log(
+      `📚 Swagger disponible en: http://localhost:${process.env.PORT || 3000}/api/docs`,
+    );
   }
 
-  // Configuración del puerto
   const PORT = process.env.PORT || 3000;
   const HOST = process.env.HOST || '0.0.0.0';
 
   await app.listen(PORT, HOST);
-  
-  // Logs informativos
+
   logger.log(`🚀 Servidor ejecutándose en: http://${HOST}:${PORT}`);
   logger.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
-  
-  if (process.env.NODE_ENV == 'production') {
-    logger.log(`📚 Documentación Swagger: http://localhost:${PORT}/api/docs`);
-  }
 }
 
 bootstrap().catch((error) => {
