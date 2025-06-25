@@ -1,7 +1,7 @@
-import { IsOptional, IsString, IsNumber, Min } from 'class-validator';
+import { IsOptional, IsNumber, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class QueryPositionDto {
+export class QueryStandingDto {
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
@@ -17,9 +17,10 @@ export class QueryPositionDto {
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  typeId?: number;
+  leagueId?: number;
 
   @IsOptional()
-  @IsString()
-  search?: string;
+  @Type(() => Number)
+  @IsNumber()
+  teamId?: number;
 }

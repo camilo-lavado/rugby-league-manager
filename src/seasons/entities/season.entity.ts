@@ -7,21 +7,27 @@ import {
     DeleteDateColumn,
   } from 'typeorm';
   
-  @Entity('position_types')
-  export class PositionType {
+  @Entity('seasons')
+  export class Season {
     @PrimaryGeneratedColumn()
     id: number;
   
-    @Column({ type: 'varchar' })
+    @Column({ unique: true })
     name: string;
   
-    @CreateDateColumn({ name: 'created_at' })
+    @Column({ type: 'date' })
+    startDate: Date;
+  
+    @Column({ type: 'date' })
+    endDate: Date;
+  
+    @CreateDateColumn()
     createdAt: Date;
   
-    @UpdateDateColumn({ name: 'updated_at' })
+    @UpdateDateColumn()
     updatedAt: Date;
   
-    @DeleteDateColumn({ name: 'deleted_at' })
+    @DeleteDateColumn()
     deletedAt?: Date;
   }
   

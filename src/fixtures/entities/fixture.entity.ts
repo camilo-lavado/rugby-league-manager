@@ -2,49 +2,57 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    ManyToOne,
     CreateDateColumn,
     UpdateDateColumn,
     DeleteDateColumn,
-    JoinColumn,
+    ManyToOne,
+    JoinColumn
   } from 'typeorm';
-  import { PositionType } from '../../position_types/entities/position_type.entity';
   import { User } from '../../users/entities/user.entity';
   
-  @Entity('positions')
-  export class Position {
+  @Entity('fixtures')
+  export class Fixture {
     @PrimaryGeneratedColumn()
     id: number;
   
+    @Column({ name: 'league_id' })
+    leagueId: number;
+  
+    @Column({ name: 'stadium_id' })
+    stadiumId: number;
+  
+    @Column({ name: 'season_id' })
+    seasonId: number;
+  
+    @Column({ name: 'referee_id' })
+    refereeId: number;
+  
+    @Column({ name: 'match_date', type: 'timestamp' })
+    matchDate: Date;
+  
     @Column()
-    name: string;
+    status: string;
   
-    @Column({ name: 'type_id' })
-    typeId: number;
+    @Column()
+    phase: string;
   
-    @ManyToOne(() => PositionType, { eager: true })
-    @JoinColumn({ name: 'type_id' })
-    type: PositionType;
-  
-    // Auditoría
-  
-    @CreateDateColumn({ name: 'created_at' })
+    @CreateDateColumn()
     createdAt: Date;
   
-    @UpdateDateColumn({ name: 'updated_at' })
+    @UpdateDateColumn()
     updatedAt: Date;
   
-    @DeleteDateColumn({ name: 'deleted_at' })
+    @DeleteDateColumn()
     deletedAt?: Date;
-  
+
     @ManyToOne(() => User, { nullable: true, eager: true })
     @JoinColumn({ name: 'created_by' })
     createdBy?: User;
-  
+
     @ManyToOne(() => User, { nullable: true, eager: true })
     @JoinColumn({ name: 'updated_by' })
     updatedBy?: User;
-  
+
     @ManyToOne(() => User, { nullable: true, eager: true })
     @JoinColumn({ name: 'deleted_by' })
     deletedBy?: User;

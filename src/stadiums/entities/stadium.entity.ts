@@ -2,39 +2,41 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    ManyToOne,
     CreateDateColumn,
     UpdateDateColumn,
     DeleteDateColumn,
+    ManyToOne,
     JoinColumn,
   } from 'typeorm';
-  import { PositionType } from '../../position_types/entities/position_type.entity';
   import { User } from '../../users/entities/user.entity';
   
-  @Entity('positions')
-  export class Position {
+  @Entity('stadiums')
+  export class Stadium {
     @PrimaryGeneratedColumn()
     id: number;
   
     @Column()
     name: string;
   
-    @Column({ name: 'type_id' })
-    typeId: number;
+    @Column()
+    location: string;
   
-    @ManyToOne(() => PositionType, { eager: true })
-    @JoinColumn({ name: 'type_id' })
-    type: PositionType;
+    @Column()
+    capacity: number;
   
-    // Auditoría
+    @Column({ name: 'surface_type' })
+    surfaceType: string;
   
-    @CreateDateColumn({ name: 'created_at' })
+    @Column({ nullable: true })
+    status?: string;
+  
+    @CreateDateColumn()
     createdAt: Date;
   
-    @UpdateDateColumn({ name: 'updated_at' })
+    @UpdateDateColumn()
     updatedAt: Date;
   
-    @DeleteDateColumn({ name: 'deleted_at' })
+    @DeleteDateColumn()
     deletedAt?: Date;
   
     @ManyToOne(() => User, { nullable: true, eager: true })

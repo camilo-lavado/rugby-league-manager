@@ -9,9 +9,16 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TestModule } from './test/test.module';
 import { TeamsModule } from './teams/teams.module';
 import { PlayersModule } from './players/players.module';
+//import { PositionsModule } from './positions/positions.module';
+//import { PositionTypesModule } from './position_types/position_types.module';
+import { CategoriesModule } from './categories/categories.module';
 import { PositionsModule } from './positions/positions.module';
 import { PositionTypesModule } from './position_types/position_types.module';
-import { CategoriesModule } from './categories/categories.module';
+import { StadiumsModule } from './stadiums/stadiums.module';
+import { SeasonsModule } from './seasons/seasons.module';
+import { DivisionsModule } from './divisions/divisions.module';
+import { StandingsModule } from './standings/standings.module';
+import { FixturesModule } from './fixtures/fixtures.module';
 
 @Module({
   imports: [
@@ -51,9 +58,16 @@ import { CategoriesModule } from './categories/categories.module';
     TestModule,
     TeamsModule,
     PlayersModule,
+    //PositionsModule,
+    //PositionTypesModule,
+    CategoriesModule,
     PositionsModule,
     PositionTypesModule,
-    CategoriesModule,
+    StadiumsModule,
+    SeasonsModule,
+    DivisionsModule,
+    StandingsModule,
+    FixturesModule,
   ],
   providers: [
     {
