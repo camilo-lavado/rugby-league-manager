@@ -22,6 +22,7 @@ import { FixturesModule } from './fixtures/fixtures.module';
 import { MatchTeamsModule } from './match_team/match_team.module';
 import { MatchParticipationModule } from './match_participation/match_participation.module';
 import { ScoresModule } from './score/score.module';
+import { MatchStatsModule } from './match_stat/match_stat.module';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { ScoresModule } from './score/score.module';
     MatchTeamsModule,
     MatchParticipationModule,
     ScoresModule,
+    MatchStatsModule,
   ],
   providers: [
     {
