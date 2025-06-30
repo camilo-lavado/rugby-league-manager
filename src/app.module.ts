@@ -25,6 +25,7 @@ import { ScoresModule } from './score/score.module';
 import { MatchStatsModule } from './match_stat/match_stat.module';
 import { PlayerCapsModule } from './player_caps/player_caps.module';
 import { PlayerSeasonStatsModule } from './player_season_stats/player_season_stats.module';
+import { MatchAggregatesModule } from './match_aggregates/match_aggregates.module';
 
 @Module({
   imports: [
@@ -80,6 +81,7 @@ import { PlayerSeasonStatsModule } from './player_season_stats/player_season_sta
     MatchStatsModule,
     PlayerCapsModule,
     PlayerSeasonStatsModule,
+    MatchAggregatesModule,
   ],
   providers: [
     {
