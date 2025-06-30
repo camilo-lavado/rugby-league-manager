@@ -19,6 +19,13 @@ import { SeasonsModule } from './seasons/seasons.module';
 import { DivisionsModule } from './divisions/divisions.module';
 import { StandingsModule } from './standings/standings.module';
 import { FixturesModule } from './fixtures/fixtures.module';
+import { MatchTeamsModule } from './match_team/match_team.module';
+import { MatchParticipationModule } from './match_participation/match_participation.module';
+import { ScoresModule } from './score/score.module';
+import { MatchStatsModule } from './match_stat/match_stat.module';
+import { PlayerCapsModule } from './player_caps/player_caps.module';
+import { PlayerSeasonStatsModule } from './player_season_stats/player_season_stats.module';
+import { MatchAggregatesModule } from './match_aggregates/match_aggregates.module';
 
 @Module({
   imports: [
@@ -68,6 +75,13 @@ import { FixturesModule } from './fixtures/fixtures.module';
     DivisionsModule,
     StandingsModule,
     FixturesModule,
+    MatchTeamsModule,
+    MatchParticipationModule,
+    ScoresModule,
+    MatchStatsModule,
+    PlayerCapsModule,
+    PlayerSeasonStatsModule,
+    MatchAggregatesModule,
   ],
   providers: [
     {

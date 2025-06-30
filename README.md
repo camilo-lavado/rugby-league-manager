@@ -26,23 +26,30 @@ Aplica principios de arquitectura modular, seguridad robusta, pruebas automatiza
 
 ## 📦 Entidades implementadas
 
-| Entidad           | Descripción                                                |
-|-------------------|------------------------------------------------------------|
-| `auth`            | Registro, login y generación de JWT                        |
-| `users`           | Gestión de usuarios y perfiles                             |
-| `roles`           | Control de roles por nombre (`admin`, `user`, etc.)        |
-| `permissions`     | Permisos (con soporte para futuros controles dinámicos)    |
-| `leagues`         | Ligas de rugby                                             |
-| `categories`      | Categorías regionales o temáticas                          |
-| `teams`           | Equipos de rugby                                           |
-| `players`         | Jugadores vinculados a usuarios y equipos                  |
-| `positions`       | Posiciones en cancha (ej: wing, hooker, fullback...)       |
-| `position_types`  | Tipos de posición (ataque, defensa)                        |
-| `stadiums`        | Estadios de juego                                          |
-| `seasons`         | Temporadas deportivas                                      |
-| `divisions`       | Divisiones internas dentro de una liga                    |
-| `standings`       | Tabla de posiciones con puntos, tries, recibidos, etc.     |
-| `fixtures`        | Calendario de partidos (fixtures)                          |
+| Entidad               | Descripción                                            |
+| --------------------- | ------------------------------------------------------ |
+| `auth`                | Registro, login y generación de JWT                    |
+| `users`               | Gestión de usuarios y perfiles                         |
+| `roles`               | Control de roles por nombre (`admin`, `user`, etc.)    |
+| `permissions`         | Permisos (base para control futuro)                    |
+| `leagues`             | Ligas de rugby                                         |
+| `categories`          | Categorías regionales o temáticas                      |
+| `teams`               | Equipos de rugby                                       |
+| `players`             | Jugadores vinculados a usuarios y equipos              |
+| `positions`           | Posiciones en cancha (ej: wing, hooker, fullback...)   |
+| `position_types`      | Tipos de posición (ataque, defensa)                    |
+| `stadiums`            | Estadios de juego                                      |
+| `seasons`             | Temporadas deportivas                                  |
+| `divisions`           | Divisiones internas dentro de una liga                 |
+| `standings`           | Tabla de posiciones con puntos, tries, recibidos, etc. |
+| `fixtures`            | Calendario de partidos (fixtures)                      |
+| `match_teams`         | Relación fixture ↔ equipo (local/visitante)           |
+| `match_participation` | Participación de jugadores en partidos                 |
+| `scores`              | Puntajes de equipos en partidos                        |
+| `match_stats`         | Estadísticas de partidos (posesión, tackles, etc.)     |
+| `player_caps`         | Historial de partidos jugados por jugador              |
+| `player_season_stats` | Estadísticas de jugadores por temporada                |
+| `match_aggregates`    | Totales agregados de estadísticas por partido          |
 
 ---
 
@@ -145,7 +152,6 @@ npm run test:cov     # Cobertura
 
 ## 🛠️ Roadmap en desarrollo
 
-- [ ] Módulos de estadísticas por partido
 - [ ] Seeders de datos iniciales (`leagues`, `players`, `positions`)
 - [ ] Emails automáticos en registro
 - [ ] Refresh tokens y logout seguro
