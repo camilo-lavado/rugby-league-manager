@@ -19,6 +19,7 @@ import { SeasonsModule } from './seasons/seasons.module';
 import { DivisionsModule } from './divisions/divisions.module';
 import { StandingsModule } from './standings/standings.module';
 import { FixturesModule } from './fixtures/fixtures.module';
+import { MatchTeamsModule } from './match_team/match_team.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { FixturesModule } from './fixtures/fixtures.module';
     DivisionsModule,
     StandingsModule,
     FixturesModule,
+    MatchTeamsModule,
   ],
   providers: [
     {
