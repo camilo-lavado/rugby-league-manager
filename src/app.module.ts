@@ -24,6 +24,7 @@ import { MatchParticipationModule } from './match_participation/match_participat
 import { ScoresModule } from './score/score.module';
 import { MatchStatsModule } from './match_stat/match_stat.module';
 import { PlayerCapsModule } from './player_caps/player_caps.module';
+import { PlayerSeasonStatsModule } from './player_season_stats/player_season_stats.module';
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { PlayerCapsModule } from './player_caps/player_caps.module';
     ScoresModule,
     MatchStatsModule,
     PlayerCapsModule,
+    PlayerSeasonStatsModule,
   ],
   providers: [
     {
